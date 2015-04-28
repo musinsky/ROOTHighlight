@@ -3745,6 +3745,10 @@ void THistPainter::HighlightBin(Int_t px, Int_t py)
    // paint highlight bin as box (recursive calls PaintHighlightBin)
    gPad->Modified(kTRUE);
    gPad->Update();
+
+   // direct emit Picked() signal
+   const Int_t kHighlightEvent = 70; // maybe addd to Buttons.h ?
+   if (gPad->GetCanvas()) gPad->GetCanvas()->Picked((TPad *)gPad, fH, kHighlightEvent);
 }
 
 
