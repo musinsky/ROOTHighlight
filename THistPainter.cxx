@@ -3706,14 +3706,13 @@ void THistPainter::SetHighlight()
    // delete previous highlight box (recursive calls PaintHighlightBin)
    gPad->Modified(kTRUE);
 
-
-   // the code below can throw
-   if (TCanvas::SupportAlpha()) return;
-   // delete previous highlight box from all canvases and from all (sub)pads
-   TIter next(gROOT->GetListOfCanvases());
-   TVirtualPad *pad = 0;
-   while ((pad = (TVirtualPad *)next()))
-      if (pad && pad->FindObject(fH)) pad->Paint();
+   //   // the code below can throw
+   //   if (TCanvas::SupportAlpha()) return;
+   //   // delete previous highlight box from all canvases and from all (sub)pads
+   //   TIter next(gROOT->GetListOfCanvases());
+   //   TVirtualPad *pad = 0;
+   //   while ((pad = (TVirtualPad *)next()))
+   //      if (pad && pad->FindObject(fH)) pad->Paint();
 }
 
 
@@ -4430,29 +4429,27 @@ void THistPainter::Paint(Option_t *option)
       if (Hoption.Hist == 2) PaintHist(option);
    }
 
-      if (Hoption.Text) PaintText(option);
-   
-      PaintTitle();  // Draw histogram title (now PaintHighlightBin calling before PaintFunctions)
-   
-      //         test for associated function
-      if (Hoption.Func) {
-         Hoption_t hoptsave = Hoption;
-         Hparam_t  hparsave = Hparam;
-         PaintFunction(option);
-         SetHistogram(hsave);
-         Hoption = hoptsave;
-         Hparam  = hparsave;
-      }
-   
-      if (gridx) gPad->SetGridx(0);
-      if (gridy) gPad->SetGridy(0);
-      PaintAxis(kFALSE);
-      if (gridx) gPad->SetGridx(1);
-      if (gridy) gPad->SetGridy(1);
-   
-      // !!! PaintTitle();  // Draw histogram title
-   
-      // Draw box with histogram statistics and/or fit parameters
+   if (Hoption.Text) PaintText(option);
+
+   //         test for associated function
+   if (Hoption.Func) {
+      Hoption_t hoptsave = Hoption;
+      Hparam_t  hparsave = Hparam;
+      PaintFunction(option);
+      SetHistogram(hsave);
+      Hoption = hoptsave;
+      Hparam  = hparsave;
+   }
+
+   if (gridx) gPad->SetGridx(0);
+   if (gridy) gPad->SetGridy(0);
+   PaintAxis(kFALSE);
+   if (gridx) gPad->SetGridx(1);
+   if (gridy) gPad->SetGridy(1);
+
+   PaintTitle();  // Draw histogram title
+
+   // Draw box with histogram statistics and/or fit parameters
 paintstat:
    if (Hoption.Same != 1 && !fH->TestBit(TH1::kNoStats)) {  // bit set via TH1::SetStats
       TIter next(fFunctions);
@@ -9443,8 +9440,8 @@ void THistPainter::PaintTitle()
    for instance the default alignment is: 13 (left top)
    End_html */
 
-   // probably best place for calling PaintHighlightBin
-   // calls after paint histo and before paint title and stats
+   // probably best place for calls PaintHighlightBin
+   // calls after paint histo (1D or 2D) and before paint title and stats
    if (!gPad->GetView()) PaintHighlightBin();
 
    if (Hoption.Same) return;
