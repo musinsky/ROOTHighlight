@@ -3706,6 +3706,12 @@ void THistPainter::SetHighlight()
    // delete previous highlight box (recursive calls PaintHighlightBin)
    gPad->Modified(kTRUE);
 
+   // direct emit Picked() signal (user's macro can check on disabled)
+   const Int_t kHighlightEvent = 70; // maybe addd to Buttons.h ?
+   if (gPad->GetCanvas()) gPad->GetCanvas()->Picked((TPad *)gPad, fH, kHighlightEvent);
+
+
+
    //   // the code below can throw
    //   if (TCanvas::SupportAlpha()) return;
    //   // delete previous highlight box from all canvases and from all (sub)pads
