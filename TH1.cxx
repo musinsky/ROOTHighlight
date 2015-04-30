@@ -4057,7 +4057,7 @@ void TH1::SetHighlight(Bool_t highlight)
    //   ((TH1 *)this)->GetPainter()->SetHighlight();
 
    if (!fPainter) {
-      Warning("SetHighlight", "Only after drawing histogram");
+      Warning("SetHighlight", "Need to draw histogram first");
       return;
    }
 
