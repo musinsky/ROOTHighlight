@@ -682,7 +682,7 @@ Int_t TGraphPainter::DistancetoPrimitiveHelper(TGraph *theGraph, Int_t px, Int_t
             gHighlightPoint = hpoint;
             gHighlightGraph = theGraph;
             gPad->Modified(kTRUE);
-            gPad->Update(); // paint highlight point as marker
+            gPad->Update(); // paint highlight point as marker (recursive calls PaintHighlightPoint)
          }
       }
       if (gHighlightGraph == theGraph) distanceOld = distance;
@@ -1065,6 +1065,7 @@ void TGraphPainter::SetHighlight(TGraph *theGraph)
 void TGraphPainter::PaintHighlightPoint(TGraph *theGraph, Option_t * /*option*/)
 {
    // Paint highlight point as TMarker object (open circle), only if highlight is enable
+   // call from PaintGraphSimple
 
    static TMarker *hmarker = 0;
    Double_t hx, hy;
@@ -1073,6 +1074,22 @@ void TGraphPainter::PaintHighlightPoint(TGraph *theGraph, Option_t * /*option*/)
          // special case, e.g. after interactive remove last point
          if (hmarker) { hmarker->Delete(); hmarker = 0; }
       } else {
+         // testing specific possibility (after zoom, draw with "same", log, etc.)
+         Double_t uxmin = gPad->GetUxmin();
+         Double_t uxmax = gPad->GetUxmax();
+         Double_t uymin = gPad->GetUymin();
+         Double_t uymax = gPad->GetUymax();
+         if (gPad->GetLogx()) {
+            uxmin = TMath::Power(10.0, uxmin);
+            uxmax = TMath::Power(10.0, uxmax);
+         }
+         if (gPad->GetLogy()) {
+            uymin = TMath::Power(10.0, uymin);
+            uymax = TMath::Power(10.0, uymax);
+         }
+         if ((hx < uxmin) || (hx > uxmax)) return;
+         if ((hy < uymin) || (hy > uymax)) return;
+
          if (!hmarker) {
             hmarker = new TMarker(hx, hy, 24);
             hmarker->SetBit(kCannotPick);

@@ -3655,7 +3655,7 @@ void THistPainter::HighlightBin(Int_t px, Int_t py)
 //______________________________________________________________________________
 void THistPainter::PaintHighlightBin(Option_t * /*option*/)
 {
-   // Paint highlight bin as TBox object
+   // Paint highlight bin as TBox object, only if highlight is enable
    // call from PaintTitle
 
    static TBox *xhbox = 0;
