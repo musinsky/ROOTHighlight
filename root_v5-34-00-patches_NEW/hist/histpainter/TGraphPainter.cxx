@@ -15,7 +15,7 @@
 #include "TGraph.h"
 #include "TPolyLine.h"
 #include "TPolyMarker.h"
-#include "TVirtualPad.h"
+#include "TCanvas.h"
 #include "TView.h"
 #include "TStyle.h"
 #include "TH1.h"
@@ -683,6 +683,8 @@ Int_t TGraphPainter::DistancetoPrimitiveHelper(TGraph *theGraph, Int_t px, Int_t
             // paint highlight point as marker (recursive calls PaintHighlightPoint)
             gPad->Modified(kTRUE);
             gPad->Update();
+            // emit Highlighted() signal
+            if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted((TPad *)gPad, theGraph, gHighlightPoint, -1);
          }
       }
       if (gHighlightGraph == theGraph) distanceOld = distance;
@@ -1054,11 +1056,20 @@ void TGraphPainter::SetHighlight(TGraph *theGraph)
    gHighlightPoint = -1; // must be -1
    gHighlightGraph = 0;
 
-   // delete previous highlight marker
-   TIter next(gROOT->GetListOfCanvases());
-   TVirtualPad *pad = 0;
-   while ((pad = (TVirtualPad *)next()))
-      if (pad && pad->FindObject(theGraph)) pad->Modified(kTRUE);
+   // delete previous highlight marker (recursive calls PaintHighlightPoint)
+   gPad->Modified(kTRUE);
+
+   if (theGraph->IsHighlight()) return;
+   // emit Highlighted() signal (user can check on disabled)
+   if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted((TPad *)gPad, theGraph, gHighlightPoint, -1);
+
+
+   //   // delete previous highlight marker from all canvases and from all (sub)pads
+   //   if (TCanvas::SupportAlpha()) return;
+   //   TIter next(gROOT->GetListOfCanvases());
+   //   TVirtualPad *pad = 0;
+   //   while ((pad = (TVirtualPad *)next()))
+   //      if (pad && pad->FindObject(theGraph)) pad->Modified(kTRUE);
 }
 
 
