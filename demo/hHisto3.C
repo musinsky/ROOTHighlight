@@ -1,5 +1,5 @@
 // Author: Jan Musinsky
-// 29/04/2015
+// 10/10/2015
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -13,9 +13,9 @@ TList *list1 = 0;
 TList *list2 = 0;
 
 void InitGraphs(TNtuple *nt, TH1F *histo);
-void Highlight3(TPad *pad, TObject *obj, Int_t event);
+void Highlight3(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb);
 
-void highlightHisto3()
+void hHisto3()
 {
    TFile *file = TFile::Open("$ROOTSYS/tutorials/hsimple.root");
    if (!file || file->IsZombie()) {
@@ -55,8 +55,8 @@ void highlightHisto3()
 
    histo1->SetHighlight();
    histo2->SetHighlight();
-   TCanvas::Connect(c1, "Picked(TPad*,TObject*,Int_t)",
-                    0, 0, "Highlight3(TPad*,TObject*,Int_t)");
+   c1->Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
+               0, 0, "Highlight3(TVirtualPad*,TObject*,Int_t,Int_t)");
 
    // common graph (all entries, all histo bins)
    c2->cd();
@@ -112,11 +112,10 @@ void InitGraphs(TNtuple *nt, TH1F *histo)
    }
 }
 
-void Highlight3(TPad *pad, TObject *obj, Int_t event)
+void Highlight3(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
 {
-   const Int_t kHighlightEvent = 70;
-   if (event != kHighlightEvent) return;
-   TH1 *histo = (TH1 *)obj;
+   TH1 *histo = dynamic_cast<TH1 *>(obj);
+   if(!histo) return;
 
    TCanvas *c2 = (TCanvas *)gROOT->GetListOfCanvases()->FindObject("c2");
    if (!c2) return;
@@ -127,7 +126,7 @@ void Highlight3(TPad *pad, TObject *obj, Int_t event)
    if      (histo->GetUniqueID() == 1) list = list1; // case1
    else if (histo->GetUniqueID() == 2) list = list2; // case2
    if (!list) return;
-   TGraph *g = (TGraph *)list->At(histo->GetXHighlightBin());
+   TGraph *g = (TGraph *)list->At(xhb);
    if (!g) return;
 
    TVirtualPad *savepad = gPad;

@@ -1,5 +1,5 @@
 // Author: Jan Musinsky
-// 29/04/2015
+// 10/10/2015
 
 #include <TCanvas.h>
 #include <TH2.h>
@@ -7,9 +7,9 @@
 #include <TROOT.h>
 #include <TText.h>
 
-void Highlight2(TPad *pad, TObject *obj, Int_t event);
+void Highlight2(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb);
 
-void highlightHisto2()
+void hHisto2()
 {
    TCanvas *c1 = new TCanvas("c1", "c1", 0, 0, 500, 500);
    TH2F *h2 = new TH2F("h2", "", 50, -5.0, 5.0, 50, -5.0, 5.0);
@@ -25,17 +25,15 @@ void highlightHisto2()
    c1->Update();
 
    h2->SetHighlight();
-   TCanvas::Connect(c1, "Picked(TPad*,TObject*,Int_t)",
-                    0, 0, "Highlight2(TPad*,TObject*,Int_t)");
+   c1->Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
+               0, 0, "Highlight2(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 
-void Highlight2(TPad *pad, TObject *obj, Int_t event)
+void Highlight2(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
 {
-   const Int_t kHighlightEvent = 70;
-   if (event != kHighlightEvent) return;
-
+   TH2 *h2 = dynamic_cast<TH2 *>(obj);
+   if(!h2) return;
    TCanvas *c2 = (TCanvas *)gROOT->GetListOfCanvases()->FindObject("c2");
-   TH2 *h2 = (TH2 *)obj;
    if (!h2->IsHighlight()) { // after disabled
       if (c2) delete c2;
       return;
@@ -46,8 +44,6 @@ void Highlight2(TPad *pad, TObject *obj, Int_t event)
       c2->Divide(1, 2);
    }
 
-   Int_t xhb = h2->GetXHighlightBin();
-   Int_t yhb = h2->GetYHighlightBin();
    TH1 *px = h2->ProjectionX("_px", yhb, yhb);
    TH1 *py = h2->ProjectionY("_py", xhb, xhb);
    px->SetTitle(TString::Format("ProjectionX of biny[%02d]", yhb));

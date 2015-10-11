@@ -1,5 +1,5 @@
 // Author: Jan Musinsky
-// 29/04/2015
+// 10/10/2015
 
 #include <TCanvas.h>
 #include <TF1.h>
@@ -8,9 +8,9 @@
 #include <TROOT.h>
 #include <TStyle.h>
 
-void HighlightZoom(TPad *pad, TObject *obj, Int_t event);
+void HighlightZoom(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb);
 
-void highlightHisto4()
+void hHisto4()
 {
    TCanvas *c1 = new TCanvas("c1", "", 0, 0, 600, 400);
    TF1 *f1 = new TF1("f1", "x*gaus(0) + [3]*abs(sin(x)/x)", -50.0, 50.0);
@@ -31,17 +31,16 @@ void highlightHisto4()
    c1->Update();
 
    h1->SetHighlight();
-   TCanvas::Connect(c1, "Picked(TPad*,TObject*,Int_t)",
-                    0, 0, "HighlightZoom(TPad*,TObject*,Int_t)");
+   c1->Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
+               0, 0, "HighlightZoom(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 
-void HighlightZoom(TPad *pad, TObject *obj, Int_t event)
+void HighlightZoom(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
 {
-   const Int_t kHighlightEvent = 70;
-   if (event != kHighlightEvent) return;
+   TH1 *h = dynamic_cast<TH1 *>(obj);
+   if(!h) return;
 
    TCanvas *c2 = (TCanvas *)gROOT->GetListOfCanvases()->FindObject("c2");
-   TH1 *h = (TH1 *)obj;
    static TH1 *hz = 0;
    if (!h->IsHighlight()) { // after disabled
       if (c2) delete c2;
@@ -63,7 +62,6 @@ void HighlightZoom(TPad *pad, TObject *obj, Int_t event)
    }
 
    Int_t zf = hz->GetNbinsX()*0.05; // zoom factor
-   Int_t xhb = h->GetXHighlightBin();
    hz->GetXaxis()->SetRange(xhb-zf, xhb+zf);
 
    TVirtualPad *savepad = gPad;
