@@ -35,7 +35,6 @@ public:
    TVirtualGraphPainter() { }
    virtual ~TVirtualGraphPainter() { }
 
-   virtual Int_t GetHighlightPointHelper(const TGraph *theGraph) const = 0;
    virtual Int_t DistancetoPrimitiveHelper(TGraph *theGraph, Int_t px, Int_t py) = 0;
    virtual void  DrawPanelHelper(TGraph *theGraph) = 0;
    virtual void  ExecuteEventHelper(TGraph *theGraph, Int_t event, Int_t px, Int_t py) = 0;

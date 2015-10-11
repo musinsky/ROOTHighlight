@@ -15,7 +15,7 @@
 #include "TGraph.h"
 #include "TPolyLine.h"
 #include "TPolyMarker.h"
-#include "TVirtualPad.h"
+#include "TCanvas.h"
 #include "TView.h"
 #include "TStyle.h"
 #include "TH1.h"
@@ -673,16 +673,18 @@ Int_t TGraphPainter::DistancetoPrimitiveHelper(TGraph *theGraph, Int_t px, Int_t
       }
    }
 
-   // check for highlight point, only if highlight is enable
-   // better choice is highlighting in DistancetoPrimitive than in ExecuteEvent
-   if (theGraph->IsHighlight()) {
+   // check for highlight point
+   if (theGraph->IsHighlight()) { // only if highlight is enable
       if ((distance < kHighlightRange) && (distance < distanceOld)) { // closest point
          if ((gHighlightPoint != hpoint) || (gHighlightGraph != theGraph)) { // was changed
             //Info("DistancetoPrimitiveHelper", "graph: %p\tpoint: %d", (void *)theGraph, hpoint);
             gHighlightPoint = hpoint;
             gHighlightGraph = theGraph;
+            // paint highlight point as marker (recursive calls PaintHighlightPoint)
             gPad->Modified(kTRUE);
-            gPad->Update(); // paint highlight point as marker (recursive calls PaintHighlightPoint)
+            gPad->Update();
+            // emit Highlighted() signal
+            if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, theGraph, gHighlightPoint, -1);
          }
       }
       if (gHighlightGraph == theGraph) distanceOld = distance;
@@ -1036,7 +1038,7 @@ char *TGraphPainter::GetObjectInfoHelper(TGraph * /*theGraph*/, Int_t /*px*/, In
 
 
 //______________________________________________________________________________
-Int_t TGraphPainter::GetHighlightPointHelper(const TGraph *theGraph) const
+Int_t TGraphPainter::GetHighlightPoint(TGraph *theGraph) const
 {
    // Return the highlighted point for theGraph
 
@@ -1053,18 +1055,26 @@ void TGraphPainter::SetHighlight(TGraph *theGraph)
    gHighlightPoint = -1; // must be -1
    gHighlightGraph = 0;
 
-   // delete previous highlight marker
-   TIter next(gROOT->GetListOfCanvases());
-   TVirtualPad *pad = 0;
-   while ((pad = (TVirtualPad *)next()))
-      if (pad && pad->FindObject(theGraph)) pad->Modified(kTRUE);
+   if (theGraph->IsHighlight()) return;
+   // delete previous highlight marker (recursive calls PaintHighlightPoint)
+   gPad->Modified(kTRUE);
+   // emit Highlighted() signal (user can check on disabled)
+   if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, theGraph, gHighlightPoint, -1);
+
+
+   //   // delete previous highlight marker from all canvases and from all (sub)pads
+   //   if (TCanvas::SupportAlpha()) return;
+   //   TIter next(gROOT->GetListOfCanvases());
+   //   TVirtualPad *pad = 0;
+   //   while ((pad = (TVirtualPad *)next()))
+   //      if (pad && pad->FindObject(theGraph)) pad->Modified(kTRUE);
 }
 
 
 //______________________________________________________________________________
 void TGraphPainter::PaintHighlightPoint(TGraph *theGraph, Option_t * /*option*/)
 {
-   // Paint highlight point as TMarker object (open circle), only if highlight is enable
+   // Paint highlight point as TMarker object (open circle)
    // call from PaintGraphSimple
 
    static TMarker *hmarker = 0;

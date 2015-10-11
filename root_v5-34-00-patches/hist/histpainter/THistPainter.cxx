@@ -3117,9 +3117,9 @@ Int_t THistPainter::DistancetoPrimitive(Int_t px, Int_t py)
       }
    }
 
-   if (fH->IsHighlight()) {
+   if (fH->IsHighlight()) { // only if highlight is enable
       if ((px > puxmin) && (py < puymin) && (px < puxmax) && (py > puymax))
-         HighlightBin(px, py); // only inside frame
+         HighlightBin(px, py);
    }
 
    //     if object is 2D or 3D return this object
@@ -3599,16 +3599,12 @@ void THistPainter::SetHighlight()
 
    // delete previous highlight box (recursive calls PaintHighlightBin)
    gPad->Modified(kTRUE);
-
-   // direct emit Picked() signal (user's macro can check on disabled)
-   const Int_t kHighlightEvent = 70; // maybe addd to Buttons.h ?
-   if (gPad->GetCanvas()) gPad->GetCanvas()->Picked((TPad *)gPad, fH, kHighlightEvent);
+   // emit Highlighted() signal (user can check on disabled)
+   if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, fH, fXHighlightBin, fYHighlightBin);
 
 
-
-   //   // the code below can throw
-   //   if (TCanvas::SupportAlpha()) return;
    //   // delete previous highlight box from all canvases and from all (sub)pads
+   //   if (TCanvas::SupportAlpha()) return;
    //   TIter next(gROOT->GetListOfCanvases());
    //   TVirtualPad *pad = 0;
    //   while ((pad = (TVirtualPad *)next()))
@@ -3646,16 +3642,15 @@ void THistPainter::HighlightBin(Int_t px, Int_t py)
    gPad->Modified(kTRUE);
    gPad->Update();
 
-   // direct emit Picked() signal
-   const Int_t kHighlightEvent = 70; // maybe addd to Buttons.h ?
-   if (gPad->GetCanvas()) gPad->GetCanvas()->Picked((TPad *)gPad, fH, kHighlightEvent);
+   // emit Highlighted() signal
+   if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, fH, fXHighlightBin, fYHighlightBin);
 }
 
 
 //______________________________________________________________________________
 void THistPainter::PaintHighlightBin(Option_t * /*option*/)
 {
-   // Paint highlight bin as TBox object, only if highlight is enable
+   // Paint highlight bin as TBox object
    // call from PaintTitle
 
    static TBox *xhbox = 0;

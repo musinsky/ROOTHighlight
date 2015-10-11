@@ -2218,26 +2218,17 @@ void TGraph::SetEditable(Bool_t editable)
 
 
 //______________________________________________________________________________
-Int_t TGraph::GetHighlightPoint() const
-{
-   // Return the highlighted point for the graph
-
-   TVirtualGraphPainter *painter = TVirtualGraphPainter::GetPainter();
-   if (painter) return painter->GetHighlightPointHelper(this);
-   else return -1;
-}
-
-
-//______________________________________________________________________________
-void TGraph::SetHighlight(Bool_t highlight)
+void TGraph::SetHighlight(Bool_t set)
 {
    // Set highlight (enable/disble) mode for the graph
    // by default highlight mode is disable
 
-   SetBit(kIsHighlight, highlight);
+   if (IsHighlight() == set) return;
 
    TVirtualGraphPainter *painter = TVirtualGraphPainter::GetPainter();
-   if (painter) painter->SetHighlight(this);
+   if (!painter) return;
+   SetBit(kIsHighlight, set);
+   painter->SetHighlight(this);
 }
 
 

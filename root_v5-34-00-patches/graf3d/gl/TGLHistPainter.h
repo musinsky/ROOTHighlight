@@ -72,14 +72,12 @@ public:
    TList         *GetContourList(Double_t contour)const;
    char          *GetObjectInfo(Int_t px, Int_t py)const;
    TList         *GetStack()const;
-   Int_t          GetXHighlightBin() const;
-   Int_t          GetYHighlightBin() const;
    Bool_t         IsInside(Int_t x, Int_t y);
    Bool_t         IsInside(Double_t x, Double_t y);
    void           Paint(Option_t *option);
    void           PaintStat(Int_t dostat, TF1 *fit);
    void           ProcessMessage(const char *message, const TObject *obj);
-   void           SetHighlight();
+   void           SetHighlight() {;}
    void           SetHistogram(TH1 *hist);
    void           SetStack(TList *stack);
    Int_t          MakeCuts(char *cutsOpt);

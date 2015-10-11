@@ -4025,41 +4025,22 @@ Double_t TH1::GetEffectiveEntries() const
 }
 
 //______________________________________________________________________________
-Int_t TH1::GetXHighlightBin() const
-{
-   // Return X highlighted bin for the histogram
-
-   return fPainter ? fPainter->GetXHighlightBin() : -1;
-}
-
-//______________________________________________________________________________
-Int_t TH1::GetYHighlightBin() const
-{
-   // Return Y highlighted bin for the histogram
-
-   return fPainter ? fPainter->GetYHighlightBin() : -1;
-}
-
-//______________________________________________________________________________
-void TH1::SetHighlight(Bool_t highlight)
+void TH1::SetHighlight(Bool_t set)
 {
    // Set highlight (enable/disble) mode for the histogram
    // by default highlight mode is disable
 
+   if (IsHighlight() == set) return;
    if (fDimension > 2) {
-      Warning("SetHighlight", "Supported only 1-D and 2-D histograms");
+      Info("SetHighlight", "Supported only 1-D or 2-D histograms");
       return;
    }
-
-   //   SetBit(kIsHighlight, highlight);
-   //   ((TH1 *)this)->GetPainter()->SetHighlight();
 
    if (!fPainter) {
-      Warning("SetHighlight", "Need to draw histogram first");
+      Info("SetHighlight", "Need to draw histogram first");
       return;
    }
-
-   SetBit(kIsHighlight, highlight);
+   SetBit(kIsHighlight, set);
    fPainter->SetHighlight();
 }
 

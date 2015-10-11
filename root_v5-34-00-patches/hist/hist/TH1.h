@@ -159,7 +159,7 @@ public:
       kIsZoomed    = BIT(16), // bit set when zooming on Y axis
       kNoTitle     = BIT(17), // don't draw the histogram title
       kIsAverage   = BIT(18), // Bin contents are average (used by Add)
-      kIsHighlight = BIT(20)  // bit set if histo is highlight
+      kIsHighlight = BIT(19)  // bit set if histo is highlight
    };
    // size of statistics data (size of  array used in GetStats()/ PutStats ) 
    // s[0]  = sumw       s[1]  = sumw2
@@ -305,8 +305,6 @@ public:
            TAxis   *GetXaxis() const;
            TAxis   *GetYaxis() const;
            TAxis   *GetZaxis() const;
-   virtual Int_t    GetXHighlightBin() const;
-   virtual Int_t    GetYHighlightBin() const;
    virtual Double_t Integral(Option_t *option="") const;
    virtual Double_t Integral(Int_t binx1, Int_t binx2, Option_t *option="") const;
    virtual Double_t IntegralAndError(Int_t binx1, Int_t binx2, Double_t & err, Option_t *option="") const;
@@ -369,7 +367,7 @@ public:
    virtual void     SetDirectory(TDirectory *dir);
    virtual void     SetEntries(Double_t n) {fEntries = n;};
    virtual void     SetError(const Double_t *error);
-   virtual void     SetHighlight(Bool_t highlight = kTRUE); // *TOGGLE* *GETTER=IsHighlight
+   virtual void     SetHighlight(Bool_t set = kTRUE); // *TOGGLE* *GETTER=IsHighlight
    virtual void     SetLabelColor(Color_t color=1, Option_t *axis="X");
    virtual void     SetLabelFont(Style_t font=62, Option_t *axis="X");
    virtual void     SetLabelOffset(Float_t offset=0.005, Option_t *axis="X");

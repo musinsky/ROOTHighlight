@@ -43,8 +43,6 @@ public:
    virtual TList     *GetContourList(Double_t contour) const = 0;
    virtual char      *GetObjectInfo(Int_t px, Int_t py) const = 0;
    virtual TList     *GetStack() const = 0;
-   virtual Int_t      GetXHighlightBin() const = 0;
-   virtual Int_t      GetYHighlightBin() const = 0;
    virtual Bool_t     IsInside(Int_t x, Int_t y) = 0;
    virtual Bool_t     IsInside(Double_t x, Double_t y) = 0;
    virtual void       Paint(Option_t *option="") = 0;

@@ -123,7 +123,6 @@ public:
    virtual void          FitPanel(); // *MENU*
    Bool_t                GetEditable() const;
    TF1                  *GetFunction(const char *name) const;
-   virtual Int_t         GetHighlightPoint() const;
    TH1F                 *GetHistogram() const;
    TList                *GetListOfFunctions() const { return fFunctions; }
    virtual Double_t      GetCorrelationFactor() const;
@@ -177,7 +176,7 @@ public:
    virtual Int_t         RemovePoint(Int_t ipoint);
    virtual void          SavePrimitive(ostream &out, Option_t *option = "");
    virtual void          SetEditable(Bool_t editable=kTRUE); // *TOGGLE* *GETTER=GetEditable
-   virtual void          SetHighlight(Bool_t highlight = kTRUE); // *TOGGLE* *GETTER=IsHighlight
+   virtual void          SetHighlight(Bool_t set = kTRUE); // *TOGGLE* *GETTER=IsHighlight
    virtual void          SetHistogram(TH1F *h) {fHistogram = h;}
    virtual void          SetMaximum(Double_t maximum=-1111); // *MENU*
    virtual void          SetMinimum(Double_t minimum=-1111); // *MENU*
