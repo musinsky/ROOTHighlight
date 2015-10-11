@@ -41,6 +41,5 @@ void HighlightTitle(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
           h2->GetXaxis()->GetBinCenter(xhb), h2->GetYaxis()->GetBinCenter(yhb),
           h2->GetBinContent(xhb, yhb));
    h2->SetTitle(t.Data());
-   pad->Modified();
    pad->Update();
 }
