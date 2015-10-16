@@ -35,8 +35,9 @@
 
 Double_t *gxwork, *gywork, *gxworkl, *gyworkl;
 
-static Int_t   gHighlightPoint = -1;   // highlight point of graph
-static TGraph *gHighlightGraph = 0;    // pointer to graph with highlight point
+static Int_t    gHighlightPoint  = -1;   // highlight point of graph
+static TGraph  *gHighlightGraph  = 0;    // pointer to graph with highlight point
+static TMarker *gHighlightMarker = 0;    // highlight marker
 
 ClassImp(TGraphPainter);
 
@@ -1054,10 +1055,10 @@ void TGraphPainter::SetHighlight(TGraph *theGraph)
 
    gHighlightPoint = -1; // must be -1
    gHighlightGraph = 0;
-
    if (theGraph->IsHighlight()) return;
-   // delete previous highlight marker (recursive calls PaintHighlightPoint)
-   gPad->Modified(kTRUE);
+
+   // delete previous highlight marker
+   if (gHighlightMarker) { gHighlightMarker->Delete(); gHighlightMarker = 0; }
    // emit Highlighted() signal (user can check on disabled)
    if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, theGraph, gHighlightPoint, -1);
 
@@ -1077,43 +1078,42 @@ void TGraphPainter::PaintHighlightPoint(TGraph *theGraph, Option_t * /*option*/)
    // Paint highlight point as TMarker object (open circle)
    // call from PaintGraphSimple
 
-   static TMarker *hmarker = 0;
-   Double_t hx, hy;
-   if (theGraph->IsHighlight() && (gHighlightGraph == theGraph)) {
-      if (theGraph->GetPoint(gHighlightPoint, hx, hy) == -1) {
-         // special case, e.g. after interactive remove last point
-         if (hmarker) { hmarker->Delete(); hmarker = 0; }
-      } else {
-         // testing specific possibility (after zoom, draw with "same", log, etc.)
-         Double_t uxmin = gPad->GetUxmin();
-         Double_t uxmax = gPad->GetUxmax();
-         Double_t uymin = gPad->GetUymin();
-         Double_t uymax = gPad->GetUymax();
-         if (gPad->GetLogx()) {
-            uxmin = TMath::Power(10.0, uxmin);
-            uxmax = TMath::Power(10.0, uxmax);
-         }
-         if (gPad->GetLogy()) {
-            uymin = TMath::Power(10.0, uymin);
-            uymax = TMath::Power(10.0, uymax);
-         }
-         if ((hx < uxmin) || (hx > uxmax)) return;
-         if ((hy < uymin) || (hy > uymax)) return;
+   if ((!theGraph->IsHighlight()) || (gHighlightGraph != theGraph)) return;
 
-         if (!hmarker) {
-            hmarker = new TMarker(hx, hy, 24);
-            hmarker->SetBit(kCannotPick);
-         }
-         hmarker->SetX(hx);
-         hmarker->SetY(hy);
-         hmarker->SetMarkerSize(theGraph->GetMarkerSize()*2.0);
-         if (hmarker->GetMarkerSize() < 1.0) hmarker->SetMarkerSize(1.0); // always visible
-         hmarker->SetMarkerColor(theGraph->GetMarkerColor());
-         hmarker->Paint();
-         //Info("PaintHighlightPoint", "graph: %p\tpoint: %d", (void *)gHighlightGraph, gHighlightPoint);
-      }
-   } else if (gHighlightPoint == -1)
-      if (hmarker) { hmarker->Delete(); hmarker = 0; }
+   Double_t hx, hy;
+   if (theGraph->GetPoint(gHighlightPoint, hx, hy) == -1) {
+      // special case, e.g. after interactive remove last point
+      if (gHighlightMarker) { gHighlightMarker->Delete(); gHighlightMarker = 0; }
+      return;
+   }
+   // testing specific possibility (after zoom, draw with "same", log, etc.)
+   Double_t uxmin = gPad->GetUxmin();
+   Double_t uxmax = gPad->GetUxmax();
+   Double_t uymin = gPad->GetUymin();
+   Double_t uymax = gPad->GetUymax();
+   if (gPad->GetLogx()) {
+      uxmin = TMath::Power(10.0, uxmin);
+      uxmax = TMath::Power(10.0, uxmax);
+   }
+   if (gPad->GetLogy()) {
+      uymin = TMath::Power(10.0, uymin);
+      uymax = TMath::Power(10.0, uymax);
+   }
+   if ((hx < uxmin) || (hx > uxmax)) return;
+   if ((hy < uymin) || (hy > uymax)) return;
+
+   if (!gHighlightMarker) {
+      gHighlightMarker = new TMarker(hx, hy, 24);
+      gHighlightMarker->SetBit(kCannotPick);
+   }
+   gHighlightMarker->SetX(hx);
+   gHighlightMarker->SetY(hy);
+   gHighlightMarker->SetMarkerSize(theGraph->GetMarkerSize()*2.0);
+   if (gHighlightMarker->GetMarkerSize() < 1.0) gHighlightMarker->SetMarkerSize(1.0); // always visible
+   gHighlightMarker->SetMarkerColor(theGraph->GetMarkerColor());
+   gHighlightMarker->Paint();
+   //   Info("PaintHighlightPoint", "graph: %p\tpoint: %d",
+   //        (void *)gHighlightGraph, gHighlightPoint);
 }
 
 

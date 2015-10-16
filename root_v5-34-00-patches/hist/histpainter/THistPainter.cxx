@@ -2931,6 +2931,9 @@ const Int_t kNMAX = 2000;
 const Int_t kMAXCONTOUR  = 104;
 const UInt_t kCannotRotate = BIT(11);
 
+static TBox *gXHighlightBox = 0;   // highlight X box
+static TBox *gYHighlightBox = 0;   // highlight Y box
+
 static TString gStringEntries;
 static TString gStringMean;
 static TString gStringMeanX;
@@ -3596,9 +3599,9 @@ void THistPainter::SetHighlight()
 
    fXHighlightBin = -1;
    fYHighlightBin = -1;
-
-   // delete previous highlight box (recursive calls PaintHighlightBin)
-   gPad->Modified(kTRUE);
+   // delete previous highlight box
+   if (gXHighlightBox) { gXHighlightBox->Delete(); gXHighlightBox = 0; }
+   if (gYHighlightBox) { gYHighlightBox->Delete(); gYHighlightBox = 0; }
    // emit Highlighted() signal (user can check on disabled)
    if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, fH, fXHighlightBin, fYHighlightBin);
 
@@ -3653,13 +3656,7 @@ void THistPainter::PaintHighlightBin(Option_t * /*option*/)
    // Paint highlight bin as TBox object
    // call from PaintTitle
 
-   static TBox *xhbox = 0;
-   static TBox *yhbox = 0;
-   if (!fH->IsHighlight()) {
-      if (xhbox) { xhbox->Delete(); xhbox = 0; }
-      if (yhbox) { yhbox->Delete(); yhbox = 0; }
-      return;
-   }
+   if (!fH->IsHighlight()) return;
 
    Double_t uxmin = gPad->GetUxmin();
    Double_t uxmax = gPad->GetUxmax();
@@ -3702,18 +3699,18 @@ void THistPainter::PaintHighlightBin(Option_t * /*option*/)
       hby2 = fYaxis->GetBinUpEdge(fXHighlightBin);
    }
 
-   if (!xhbox) {
-      xhbox = new TBox(hbx1, hby1, hbx2, hby2);
-      xhbox->SetBit(kCannotPick);
-      xhbox->SetFillColor(TColor::GetColor("#9797ff"));
-      if (!TCanvas::SupportAlpha()) xhbox->SetFillStyle(3001);
-      else gROOT->GetColor(xhbox->GetFillColor())->SetAlpha(0.5);
+   if (!gXHighlightBox) {
+      gXHighlightBox = new TBox(hbx1, hby1, hbx2, hby2);
+      gXHighlightBox->SetBit(kCannotPick);
+      gXHighlightBox->SetFillColor(TColor::GetColor("#9797ff"));
+      if (!TCanvas::SupportAlpha()) gXHighlightBox->SetFillStyle(3001);
+      else gROOT->GetColor(gXHighlightBox->GetFillColor())->SetAlpha(0.5);
    }
-   xhbox->SetX1(hbx1);
-   xhbox->SetX2(hbx2);
-   xhbox->SetY1(hby1);
-   xhbox->SetY2(hby2);
-   xhbox->Paint();
+   gXHighlightBox->SetX1(hbx1);
+   gXHighlightBox->SetX2(hbx2);
+   gXHighlightBox->SetY1(hby1);
+   gXHighlightBox->SetY2(hby2);
+   gXHighlightBox->Paint();
 
    //   Info("PaintHighlightBin", "histo: %p '%s'\txbin: %d, ybin: %d",
    //        (void *)fH, fH->GetName(), fXHighlightBin, fYHighlightBin);
@@ -3725,17 +3722,17 @@ void THistPainter::PaintHighlightBin(Option_t * /*option*/)
    hby1 = fYaxis->GetBinLowEdge(fYHighlightBin);
    hby2 = fYaxis->GetBinUpEdge(fYHighlightBin);
 
-   if (!yhbox) {
-      yhbox = new TBox(hbx1, hby1, hbx2, hby2);
-      yhbox->SetBit(kCannotPick);
-      yhbox->SetFillColor(xhbox->GetFillColor());
-      yhbox->SetFillStyle(xhbox->GetFillStyle());
+   if (!gYHighlightBox) {
+      gYHighlightBox = new TBox(hbx1, hby1, hbx2, hby2);
+      gYHighlightBox->SetBit(kCannotPick);
+      gYHighlightBox->SetFillColor(gXHighlightBox->GetFillColor());
+      gYHighlightBox->SetFillStyle(gXHighlightBox->GetFillStyle());
    }
-   yhbox->SetX1(hbx1);
-   yhbox->SetX2(hbx2);
-   yhbox->SetY1(hby1);
-   yhbox->SetY2(hby2);
-   yhbox->Paint();
+   gYHighlightBox->SetX1(hbx1);
+   gYHighlightBox->SetX2(hbx2);
+   gYHighlightBox->SetY1(hby1);
+   gYHighlightBox->SetY2(hby2);
+   gYHighlightBox->Paint();
 }
 
 
