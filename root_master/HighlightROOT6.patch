@@ -1,0 +1,635 @@
+diff --git a/graf2d/gpad/inc/TCanvas.h b/graf2d/gpad/inc/TCanvas.h
+index dfd8842..90b74e5 100644
+--- a/graf2d/gpad/inc/TCanvas.h
++++ b/graf2d/gpad/inc/TCanvas.h
+@@ -203,6 +203,7 @@ public:
+    virtual TPad     *Pick(Int_t px, Int_t py, TObjLink *&pickobj) { return TPad::Pick(px, py, pickobj); }
+    virtual TPad     *Pick(Int_t px, Int_t py, TObject *prevSelObj);
+    virtual void      Picked(TPad *selpad, TObject *selected, Int_t event);             // *SIGNAL*
++   virtual void      Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y);    // *SIGNAL*
+    virtual void      ProcessedEvent(Int_t event, Int_t x, Int_t y, TObject *selected); // *SIGNAL*
+    virtual void      Selected(TVirtualPad *pad, TObject *obj, Int_t event);            // *SIGNAL*
+    virtual void      Cleared(TVirtualPad *pad);                                        // *SIGNAL*
+diff --git a/graf2d/gpad/src/TCanvas.cxx b/graf2d/gpad/src/TCanvas.cxx
+index 3261ebf..0da6517 100644
+--- a/graf2d/gpad/src/TCanvas.cxx
++++ b/graf2d/gpad/src/TCanvas.cxx
+@@ -1488,6 +1488,21 @@ void TCanvas::Picked(TPad *pad, TObject *obj, Int_t event)
+ }
+ 
+ ////////////////////////////////////////////////////////////////////////////////
++/// Emit Highlighted() signal.
++
++void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
++{
++   Long_t args[4];
++
++   args[0] = (Long_t) pad;
++   args[1] = (Long_t) obj;
++   args[2] = x;
++   args[3] = y;
++
++   Emit("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)", args);
++}
++
++////////////////////////////////////////////////////////////////////////////////
+ /// Emit Selected() signal.
+ 
+ void TCanvas::Selected(TVirtualPad *pad, TObject *obj, Int_t event)
+diff --git a/graf3d/gl/inc/TGLHistPainter.h b/graf3d/gl/inc/TGLHistPainter.h
+index d4c7a6b..fb10020 100644
+--- a/graf3d/gl/inc/TGLHistPainter.h
++++ b/graf3d/gl/inc/TGLHistPainter.h
+@@ -77,6 +77,7 @@ public:
+    void           Paint(Option_t *option);
+    void           PaintStat(Int_t dostat, TF1 *fit);
+    void           ProcessMessage(const char *message, const TObject *obj);
++   void           SetHighlight();
+    void           SetHistogram(TH1 *hist);
+    void           SetStack(TList *stack);
+    Int_t          MakeCuts(char *cutsOpt);
+diff --git a/graf3d/gl/src/TGLHistPainter.cxx b/graf3d/gl/src/TGLHistPainter.cxx
+index 585e2ce..6a77022 100644
+--- a/graf3d/gl/src/TGLHistPainter.cxx
++++ b/graf3d/gl/src/TGLHistPainter.cxx
+@@ -528,6 +528,15 @@ void TGLHistPainter::ProcessMessage(const char *m, const TObject *o)
+ }
+ 
+ ////////////////////////////////////////////////////////////////////////////////
++/// Set highlight mode
++
++void TGLHistPainter::SetHighlight()
++{
++   if (fDefaultPainter.get())
++      fDefaultPainter->SetHighlight();
++}
++
++////////////////////////////////////////////////////////////////////////////////
+ /// Set histogram.
+ 
+ void TGLHistPainter::SetHistogram(TH1 *h)
+diff --git a/hist/hist/inc/TGraph.h b/hist/hist/inc/TGraph.h
+index 51496e4..18d2d7f 100644
+--- a/hist/hist/inc/TGraph.h
++++ b/hist/hist/inc/TGraph.h
+@@ -80,7 +80,8 @@ public:
+    // TGraph status bits
+    enum {
+       kClipFrame     = BIT(10),  // clip to the frame boundary
+-      kNotEditable   = BIT(18)   // bit set if graph is non editable
++      kNotEditable   = BIT(18),  // bit set if graph is non editable
++      kIsHighlight   = BIT(19)   // bit set if graph is highlight
+    };
+ 
+    TGraph();
+@@ -160,6 +161,7 @@ public:
+    virtual Int_t         InsertPoint(); // *MENU*
+    virtual Double_t      Integral(Int_t first=0, Int_t last=-1) const;
+    virtual Bool_t        IsEditable() const {return !TestBit(kNotEditable);}
++   virtual Bool_t        IsHighlight() const { return TestBit(kIsHighlight); }
+    virtual Int_t         IsInside(Double_t x, Double_t y) const;
+    virtual void          LeastSquareFit(Int_t m, Double_t *a, Double_t xmin=0, Double_t xmax=0);
+    virtual void          LeastSquareLinearFit(Int_t n, Double_t &a0, Double_t &a1, Int_t &ifail, Double_t xmin=0, Double_t xmax=0);
+@@ -174,6 +176,7 @@ public:
+    virtual Int_t         RemovePoint(Int_t ipoint);
+    virtual void          SavePrimitive(std::ostream &out, Option_t *option = "");
+    virtual void          SetEditable(Bool_t editable=kTRUE); // *TOGGLE* *GETTER=GetEditable
++   virtual void          SetHighlight(Bool_t set = kTRUE); // *TOGGLE* *GETTER=IsHighlight
+    virtual void          SetHistogram(TH1F *h) {fHistogram = h;}
+    virtual void          SetMaximum(Double_t maximum=-1111); // *MENU*
+    virtual void          SetMinimum(Double_t minimum=-1111); // *MENU*
+diff --git a/hist/hist/inc/TH1.h b/hist/hist/inc/TH1.h
+index 014e613..eac8003 100644
+--- a/hist/hist/inc/TH1.h
++++ b/hist/hist/inc/TH1.h
+@@ -172,7 +172,8 @@ public:
+       kIsZoomed    = BIT(16), // bit set when zooming on Y axis
+       kNoTitle     = BIT(17), // don't draw the histogram title
+       kIsAverage   = BIT(18), // Bin contents are average (used by Add)
+-      kIsNotW      = BIT(19)  // Histogram is forced to be not weighted even when the histogram is filled with weighted different than 1.
++      kIsNotW      = BIT(19), // Histogram is forced to be not weighted even when the histogram is filled with weighted different than 1.
++      kIsHighlight = BIT(20)  // bit set if histo is highlight
+    };
+    // size of statistics data (size of  array used in GetStats()/ PutStats )
+    // s[0]  = sumw       s[1]  = sumw2
+@@ -330,6 +331,7 @@ public:
+    virtual Double_t Interpolate(Double_t x, Double_t y, Double_t z);
+            Bool_t   IsBinOverflow(Int_t bin) const;
+            Bool_t   IsBinUnderflow(Int_t bin) const;
++   virtual Bool_t   IsHighlight() const { return TestBit(kIsHighlight); }
+    virtual Double_t AndersonDarlingTest(const TH1 *h2, Option_t *option="") const;
+    virtual Double_t AndersonDarlingTest(const TH1 *h2, Double_t &advalue) const;
+    virtual Double_t KolmogorovTest(const TH1 *h2, Option_t *option="") const;
+@@ -381,6 +383,7 @@ public:
+    virtual void     SetDirectory(TDirectory *dir);
+    virtual void     SetEntries(Double_t n) {fEntries = n;};
+    virtual void     SetError(const Double_t *error);
++   virtual void     SetHighlight(Bool_t set = kTRUE); // *TOGGLE* *GETTER=IsHighlight
+    virtual void     SetLabelColor(Color_t color=1, Option_t *axis="X");
+    virtual void     SetLabelFont(Style_t font=62, Option_t *axis="X");
+    virtual void     SetLabelOffset(Float_t offset=0.005, Option_t *axis="X");
+diff --git a/hist/hist/inc/TVirtualGraphPainter.h b/hist/hist/inc/TVirtualGraphPainter.h
+index 30db223..3f7d760 100644
+--- a/hist/hist/inc/TVirtualGraphPainter.h
++++ b/hist/hist/inc/TVirtualGraphPainter.h
+@@ -43,6 +43,7 @@ public:
+    virtual void  PaintGraph(TGraph *theGraph, Int_t npoints, const Double_t *x, const Double_t *y, Option_t *chopt) = 0;
+    virtual void  PaintGrapHist(TGraph *theGraph, Int_t npoints, const Double_t *x, const Double_t *y, Option_t *chopt) = 0;
+    virtual void  PaintStats(TGraph *theGraph, TF1 *fit) = 0;
++   virtual void  SetHighlight(TGraph *theGraph) = 0;
+ 
+    static TVirtualGraphPainter *GetPainter();
+    static void                  SetPainter(TVirtualGraphPainter *painter);
+diff --git a/hist/hist/inc/TVirtualHistPainter.h b/hist/hist/inc/TVirtualHistPainter.h
+index 475221d..c22d2e9 100644
+--- a/hist/hist/inc/TVirtualHistPainter.h
++++ b/hist/hist/inc/TVirtualHistPainter.h
+@@ -48,6 +48,7 @@ public:
+    virtual void       Paint(Option_t *option="") = 0;
+    virtual void       PaintStat(Int_t dostat, TF1 *fit) = 0;
+    virtual void       ProcessMessage(const char *mess, const TObject *obj) = 0;
++   virtual void       SetHighlight() = 0;
+    virtual void       SetHistogram(TH1 *h) = 0;
+    virtual void       SetStack(TList *stack) = 0;
+    virtual Int_t      MakeCuts(char *cutsopt) = 0;
+diff --git a/hist/hist/src/TGraph.cxx b/hist/hist/src/TGraph.cxx
+index 6d8b1ee..236bdd2 100644
+--- a/hist/hist/src/TGraph.cxx
++++ b/hist/hist/src/TGraph.cxx
+@@ -2101,6 +2101,20 @@ void TGraph::SetEditable(Bool_t editable)
+ }
+ 
+ ////////////////////////////////////////////////////////////////////////////////
++/// Set highlight (enable/disble) mode for the graph
++/// by default highlight mode is disable
++
++void TGraph::SetHighlight(Bool_t set)
++{
++   if (IsHighlight() == set) return;
++
++   TVirtualGraphPainter *painter = TVirtualGraphPainter::GetPainter();
++   if (!painter) return;
++   SetBit(kIsHighlight, set);
++   painter->SetHighlight(this);
++}
++
++////////////////////////////////////////////////////////////////////////////////
+ /// Set the maximum of the graph.
+ 
+ void TGraph::SetMaximum(Double_t maximum)
+diff --git a/hist/hist/src/TH1.cxx b/hist/hist/src/TH1.cxx
+index 1d05ceb..24e6eec 100644
+--- a/hist/hist/src/TH1.cxx
++++ b/hist/hist/src/TH1.cxx
+@@ -4077,6 +4077,27 @@ Double_t TH1::GetEffectiveEntries() const
+ 
+ 
+ ////////////////////////////////////////////////////////////////////////////////
++/// Set highlight (enable/disable) mode for the histogram
++/// by default highlight mode is disable
++
++void TH1::SetHighlight(Bool_t set)
++{
++   if (IsHighlight() == set) return;
++   if (fDimension > 2) {
++      Info("SetHighlight", "Supported only 1-D or 2-D histograms");
++      return;
++   }
++
++   if (!fPainter) {
++      Info("SetHighlight", "Need to draw histogram first");
++      return;
++   }
++   SetBit(kIsHighlight, set);
++   fPainter->SetHighlight();
++}
++
++
++////////////////////////////////////////////////////////////////////////////////
+ /// Redefines TObject::GetObjectInfo.
+ /// Displays the histogram info (bin number, contents, integral up to bin
+ /// corresponding to cursor position px,py
+diff --git a/hist/histpainter/inc/TGraphPainter.h b/hist/histpainter/inc/TGraphPainter.h
+index 86c364b..552372f 100644
+--- a/hist/histpainter/inc/TGraphPainter.h
++++ b/hist/histpainter/inc/TGraphPainter.h
+@@ -41,6 +41,8 @@ public:
+    virtual void   DrawPanelHelper(TGraph *theGraph);
+    virtual void   ExecuteEventHelper(TGraph *theGraph, Int_t event, Int_t px, Int_t py);
+    virtual char  *GetObjectInfoHelper(TGraph *theGraph, Int_t px, Int_t py) const;
++   virtual Int_t  GetHighlightPoint(TGraph *theGraph) const;
++   virtual void   PaintHighlightPoint(TGraph *theGraph, Option_t *option);
+    void           PaintHelper(TGraph *theGraph, Option_t *option);
+    virtual void   PaintGraph(TGraph *theGraph, Int_t npoints, const Double_t *x, const Double_t *y, Option_t *chopt);
+    virtual void   PaintGrapHist(TGraph *theGraph, Int_t npoints, const Double_t *x, const Double_t *y, Option_t *chopt);
+@@ -52,6 +54,7 @@ public:
+    void           PaintGraphSimple(TGraph *theGraph, Option_t *option);
+    void           PaintPolyLineHatches(TGraph *theGraph, Int_t n, const Double_t *x, const Double_t *y);
+    void           PaintStats(TGraph *theGraph, TF1 *fit);
++   virtual void   SetHighlight(TGraph *theGraph);
+    void           Smooth(TGraph *theGraph, Int_t npoints, Double_t *x, Double_t *y, Int_t drawtype);
+ 
+    ClassDef(TGraphPainter,0)  // TGraph painter
+diff --git a/hist/histpainter/inc/THistPainter.h b/hist/histpainter/inc/THistPainter.h
+index 5c8d9fa..798a272 100644
+--- a/hist/histpainter/inc/THistPainter.h
++++ b/hist/histpainter/inc/THistPainter.h
+@@ -57,6 +57,8 @@ protected:
+    TList                *fStack;             //Pointer to stack of histograms (if any)
+    Int_t                 fShowProjection;    //True if a projection must be drawn
+    TString               fShowOption;        //Option to draw the projection
++   Int_t                 fXHighlightBin;     //X highlight bin
++   Int_t                 fYHighlightBin;     //Y highlight bin
+ 
+ public:
+    THistPainter();
+@@ -68,6 +70,9 @@ public:
+    virtual TList     *GetContourList(Double_t contour) const;
+    virtual char      *GetObjectInfo(Int_t px, Int_t py) const;
+    virtual TList     *GetStack() const {return fStack;}
++   virtual Int_t      GetXHighlightBin() const { return fXHighlightBin; }
++   virtual Int_t      GetYHighlightBin() const { return fYHighlightBin; }
++   virtual void       HighlightBin(Int_t px, Int_t py);
+    virtual Bool_t     IsInside(Int_t x, Int_t y);
+    virtual Bool_t     IsInside(Double_t x, Double_t y);
+    virtual Int_t      MakeChopt(Option_t *option);
+@@ -93,6 +98,7 @@ public:
+    virtual void       Paint2DErrors(Option_t *option);
+    virtual void       PaintFrame();
+    virtual void       PaintFunction(Option_t *option);
++   virtual void       PaintHighlightBin(Option_t *option="");
+    virtual void       PaintHist(Option_t *option);
+    virtual void       PaintH3(Option_t *option="");
+    virtual void       PaintH3Iso();
+@@ -118,6 +124,7 @@ public:
+    static  Int_t      ProjectParabolic2xy(Double_t l, Double_t b, Double_t &Al, Double_t &Ab);
+    virtual void       RecalculateRange();
+    virtual void       RecursiveRemove(TObject *) {;}
++   virtual void       SetHighlight();
+    virtual void       SetHistogram(TH1 *h);
+    virtual void       SetStack(TList *stack) {fStack = stack;}
+    virtual void       SetShowProjection(const char *option,Int_t nbins);
+diff --git a/hist/histpainter/src/TGraphPainter.cxx b/hist/histpainter/src/TGraphPainter.cxx
+index ca56af2..717aea2 100644
+--- a/hist/histpainter/src/TGraphPainter.cxx
++++ b/hist/histpainter/src/TGraphPainter.cxx
+@@ -15,7 +15,7 @@
+ #include "TGraph.h"
+ #include "TPolyLine.h"
+ #include "TPolyMarker.h"
+-#include "TVirtualPad.h"
++#include "TCanvas.h"
+ #include "TView.h"
+ #include "TStyle.h"
+ #include "TH1.h"
+@@ -30,10 +30,15 @@
+ #include "TLatex.h"
+ #include "TArrow.h"
+ #include "TFrame.h"
++#include "TMarker.h"
+ #include "TVirtualPadEditor.h"
+ 
+ Double_t *gxwork, *gywork, *gxworkl, *gyworkl;
+ 
++static Int_t    gHighlightPoint  = -1;   // highlight point of graph
++static TGraph  *gHighlightGraph  = 0;    // pointer to graph with highlight point
++static TMarker *gHighlightMarker = 0;    // highlight marker
++
+ ClassImp(TGraphPainter);
+ 
+ 
+@@ -522,11 +527,36 @@ Int_t TGraphPainter::DistancetoPrimitiveHelper(TGraph *theGraph, Int_t px, Int_t
+       theY   = theGraph->GetY();
+    }
+ 
++   Int_t hpoint = -1;
++   const Int_t kHighlightRange = 50; // maybe as fgHighlightRange and Set/Get
++   static Int_t distanceOld = kHighlightRange;
++   if (gHighlightPoint == -1) distanceOld = kHighlightRange; // reset
++
+    for (i=0;i<theNpoints;i++) {
+       pxp = gPad->XtoAbsPixel(gPad->XtoPad(theX[i]));
+       pyp = gPad->YtoAbsPixel(gPad->YtoPad(theY[i]));
+       d   = TMath::Abs(pxp-px) + TMath::Abs(pyp-py);
+-      if (d < distance) distance = d;
++      if (d < distance) {
++         distance = d;
++         hpoint = i;
++      }
++   }
++
++   // check for highlight point
++   if (theGraph->IsHighlight()) { // only if highlight is enable
++      if ((distance < kHighlightRange) && (distance < distanceOld)) { // closest point
++         if ((gHighlightPoint != hpoint) || (gHighlightGraph != theGraph)) { // was changed
++            //Info("DistancetoPrimitiveHelper", "graph: %p\tpoint: %d", (void *)theGraph, hpoint);
++            gHighlightPoint = hpoint;
++            gHighlightGraph = theGraph;
++            // paint highlight point as marker (recursive calls PaintHighlightPoint)
++            gPad->Modified(kTRUE);
++            gPad->Update();
++            // emit Highlighted() signal
++            if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, theGraph, gHighlightPoint, -1);
++         }
++      }
++      if (gHighlightGraph == theGraph) distanceOld = distance;
+    }
+    if (distance < kMaxDiff) return distance;
+ 
+@@ -878,6 +908,86 @@ char *TGraphPainter::GetObjectInfoHelper(TGraph * /*theGraph*/, Int_t /*px*/, In
+ 
+ 
+ ////////////////////////////////////////////////////////////////////////////////
++/// Return the highlighted point for theGraph
++
++Int_t TGraphPainter::GetHighlightPoint(TGraph *theGraph) const
++{
++   if (theGraph == gHighlightGraph) return gHighlightPoint;
++   else return -1;
++}
++
++
++////////////////////////////////////////////////////////////////////////////////
++/// Set highlight (enable/disable) mode for theGraph
++
++void TGraphPainter::SetHighlight(TGraph *theGraph)
++{
++   gHighlightPoint = -1; // must be -1
++   gHighlightGraph = 0;
++   if (theGraph->IsHighlight()) return;
++
++   // delete previous highlight marker
++   if (gHighlightMarker) { gHighlightMarker->Delete(); gHighlightMarker = 0; }
++   // emit Highlighted() signal (user can check on disabled)
++   if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, theGraph, gHighlightPoint, -1);
++
++
++   //   // delete previous highlight marker from all canvases and from all (sub)pads
++   //   if (TCanvas::SupportAlpha()) return;
++   //   TIter next(gROOT->GetListOfCanvases());
++   //   TVirtualPad *pad = 0;
++   //   while ((pad = (TVirtualPad *)next()))
++   //      if (pad && pad->FindObject(theGraph)) pad->Modified(kTRUE);
++}
++
++
++////////////////////////////////////////////////////////////////////////////////
++/// Paint highlight point as TMarker object (open circle)
++
++void TGraphPainter::PaintHighlightPoint(TGraph *theGraph, Option_t * /*option*/)
++{
++   // call from PaintGraphSimple
++
++   if ((!theGraph->IsHighlight()) || (gHighlightGraph != theGraph)) return;
++
++   Double_t hx, hy;
++   if (theGraph->GetPoint(gHighlightPoint, hx, hy) == -1) {
++      // special case, e.g. after interactive remove last point
++      if (gHighlightMarker) { gHighlightMarker->Delete(); gHighlightMarker = 0; }
++      return;
++   }
++   // testing specific possibility (after zoom, draw with "same", log, etc.)
++   Double_t uxmin = gPad->GetUxmin();
++   Double_t uxmax = gPad->GetUxmax();
++   Double_t uymin = gPad->GetUymin();
++   Double_t uymax = gPad->GetUymax();
++   if (gPad->GetLogx()) {
++      uxmin = TMath::Power(10.0, uxmin);
++      uxmax = TMath::Power(10.0, uxmax);
++   }
++   if (gPad->GetLogy()) {
++      uymin = TMath::Power(10.0, uymin);
++      uymax = TMath::Power(10.0, uymax);
++   }
++   if ((hx < uxmin) || (hx > uxmax)) return;
++   if ((hy < uymin) || (hy > uymax)) return;
++
++   if (!gHighlightMarker) {
++      gHighlightMarker = new TMarker(hx, hy, 24);
++      gHighlightMarker->SetBit(kCannotPick);
++   }
++   gHighlightMarker->SetX(hx);
++   gHighlightMarker->SetY(hy);
++   gHighlightMarker->SetMarkerSize(theGraph->GetMarkerSize()*2.0);
++   if (gHighlightMarker->GetMarkerSize() < 1.0) gHighlightMarker->SetMarkerSize(1.0); // always visible
++   gHighlightMarker->SetMarkerColor(theGraph->GetMarkerColor());
++   gHighlightMarker->Paint();
++   //   Info("PaintHighlightPoint", "graph: %p\tpoint: %d",
++   //        (void *)gHighlightGraph, gHighlightPoint);
++}
++
++
++////////////////////////////////////////////////////////////////////////////////
+ /// Paint a any kind of TGraph
+ 
+ void TGraphPainter::PaintHelper(TGraph *theGraph, Option_t *option)
+@@ -3122,6 +3232,8 @@ void TGraphPainter::PaintGraphSimple(TGraph *theGraph, Option_t *option)
+       PaintGraph(theGraph, theGraph->GetN(), theGraph->GetX(), theGraph->GetY(), option);
+    }
+ 
++   PaintHighlightPoint(theGraph, option);
++
+    // Paint associated objects in the list of functions (for instance
+    // the fit function).
+    TList *functions = theGraph->GetListOfFunctions();
+diff --git a/hist/histpainter/src/THistPainter.cxx b/hist/histpainter/src/THistPainter.cxx
+index c228921..f46e336 100644
+--- a/hist/histpainter/src/THistPainter.cxx
++++ b/hist/histpainter/src/THistPainter.cxx
+@@ -2430,6 +2430,9 @@ const Int_t kNMAX = 2000;
+ const Int_t kMAXCONTOUR  = 104;
+ const UInt_t kCannotRotate = BIT(11);
+ 
++static TBox *gXHighlightBox = 0;   // highlight X box
++static TBox *gYHighlightBox = 0;   // highlight Y box
++
+ static TString gStringEntries;
+ static TString gStringMean;
+ static TString gStringMeanX;
+@@ -2479,6 +2482,8 @@ THistPainter::THistPainter()
+       fCuts[i] = 0;
+       fCutsOpt[i] = 0;
+    }
++   fXHighlightBin = -1;
++   fYHighlightBin = -1;
+ 
+    gStringEntries          = gEnv->GetValue("Hist.Stats.Entries",          "Entries");
+    gStringMean             = gEnv->GetValue("Hist.Stats.Mean",             "Mean");
+@@ -2611,6 +2616,11 @@ Int_t THistPainter::DistancetoPrimitive(Int_t px, Int_t py)
+       }
+    }
+ 
++   if (fH->IsHighlight()) { // only if highlight is enable
++      if ((px > puxmin) && (py < puymin) && (px < puxmax) && (py > puymax))
++         HighlightBin(px, py);
++   }
++
+    //     if object is 2D or 3D return this object
+    if (fH->GetDimension() == 2) {
+       if (fH->InheritsFrom(TH2Poly::Class())) {
+@@ -3102,6 +3112,154 @@ char *THistPainter::GetObjectInfo(Int_t px, Int_t py) const
+ 
+ 
+ ////////////////////////////////////////////////////////////////////////////////
++/// Set highlight (enable/disable) mode for fH
++
++void THistPainter::SetHighlight()
++{
++   if (fH->IsHighlight()) return;
++
++   fXHighlightBin = -1;
++   fYHighlightBin = -1;
++   // delete previous highlight box
++   if (gXHighlightBox) { gXHighlightBox->Delete(); gXHighlightBox = 0; }
++   if (gYHighlightBox) { gYHighlightBox->Delete(); gYHighlightBox = 0; }
++   // emit Highlighted() signal (user can check on disabled)
++   if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, fH, fXHighlightBin, fYHighlightBin);
++
++
++   //   // delete previous highlight box from all canvases and from all (sub)pads
++   //   if (TCanvas::SupportAlpha()) return;
++   //   TIter next(gROOT->GetListOfCanvases());
++   //   TVirtualPad *pad = 0;
++   //   while ((pad = (TVirtualPad *)next()))
++   //      if (pad && pad->FindObject(fH)) pad->Paint();
++}
++
++
++////////////////////////////////////////////////////////////////////////////////
++/// Check on highlight bin
++
++void THistPainter::HighlightBin(Int_t px, Int_t py)
++{
++   // call from DistancetoPrimitive (only if highlight is enable)
++
++   Double_t x = gPad->PadtoX(gPad->AbsPixeltoX(px));
++   Double_t y = gPad->PadtoY(gPad->AbsPixeltoY(py));
++   Int_t binx = fXaxis->FindFixBin(x);
++   Int_t biny = fYaxis->FindFixBin(y);
++   if (!gPad->IsVertical()) binx = fXaxis->FindFixBin(y);
++
++   Bool_t changedBin = kFALSE;
++   if (binx != fXHighlightBin) {
++      fXHighlightBin = binx;
++      changedBin = kTRUE;
++   } else if (fH->GetDimension() == 1) return;
++   if (biny != fYHighlightBin) {
++      fYHighlightBin = biny;
++      changedBin = kTRUE;
++   }
++   if (!changedBin) return;
++
++   //   Info("HighlightBin", "histo: %p '%s'\txbin: %d, ybin: %d",
++   //        (void *)fH, fH->GetName(), fXHighlightBin, fYHighlightBin);
++
++   // paint highlight bin as box (recursive calls PaintHighlightBin)
++   gPad->Modified(kTRUE);
++   gPad->Update();
++
++   // emit Highlighted() signal
++   if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, fH, fXHighlightBin, fYHighlightBin);
++}
++
++
++////////////////////////////////////////////////////////////////////////////////
++/// Paint highlight bin as TBox object
++
++void THistPainter::PaintHighlightBin(Option_t * /*option*/)
++{
++   // call from PaintTitle
++
++   if (!fH->IsHighlight()) return;
++
++   Double_t uxmin = gPad->GetUxmin();
++   Double_t uxmax = gPad->GetUxmax();
++   Double_t uymin = gPad->GetUymin();
++   Double_t uymax = gPad->GetUymax();
++   if (gPad->GetLogx()) {
++      uxmin = TMath::Power(10.0, uxmin);
++      uxmax = TMath::Power(10.0, uxmax);
++   }
++   if (gPad->GetLogy()) {
++      uymin = TMath::Power(10.0, uymin);
++      uymax = TMath::Power(10.0, uymax);
++   }
++
++   // testing specific possibility (after zoom, draw with "same", log, etc.)
++   Double_t hcenter;
++   if (gPad->IsVertical()) {
++      hcenter = fXaxis->GetBinCenter(fXHighlightBin);
++      if ((hcenter < uxmin) || (hcenter > uxmax)) return;
++   } else {
++      hcenter = fYaxis->GetBinCenter(fXHighlightBin);
++      if ((hcenter < uymin) || (hcenter > uymax)) return;
++   }
++   if (fH->GetDimension() == 2) {
++      hcenter = fYaxis->GetBinCenter(fYHighlightBin);
++      if ((hcenter < uymin) || (hcenter > uymax)) return;
++   }
++
++   // paint X highlight bin (for 1D or 2D)
++   Double_t hbx1, hbx2, hby1, hby2;
++   if (gPad->IsVertical()) {
++      hbx1 = fXaxis->GetBinLowEdge(fXHighlightBin);
++      hbx2 = fXaxis->GetBinUpEdge(fXHighlightBin);
++      hby1 = uymin;
++      hby2 = uymax;
++   } else {
++      hbx1 = uxmin;
++      hbx2 = uxmax;
++      hby1 = fYaxis->GetBinLowEdge(fXHighlightBin);
++      hby2 = fYaxis->GetBinUpEdge(fXHighlightBin);
++   }
++
++   if (!gXHighlightBox) {
++      gXHighlightBox = new TBox(hbx1, hby1, hbx2, hby2);
++      gXHighlightBox->SetBit(kCannotPick);
++      gXHighlightBox->SetFillColor(TColor::GetColor("#9797ff"));
++      if (!TCanvas::SupportAlpha()) gXHighlightBox->SetFillStyle(3001);
++      else gROOT->GetColor(gXHighlightBox->GetFillColor())->SetAlpha(0.5);
++   }
++   gXHighlightBox->SetX1(hbx1);
++   gXHighlightBox->SetX2(hbx2);
++   gXHighlightBox->SetY1(hby1);
++   gXHighlightBox->SetY2(hby2);
++   gXHighlightBox->Paint();
++
++   //   Info("PaintHighlightBin", "histo: %p '%s'\txbin: %d, ybin: %d",
++   //        (void *)fH, fH->GetName(), fXHighlightBin, fYHighlightBin);
++
++   // paint Y highlight bin (only for 2D)
++   if (fH->GetDimension() != 2) return;
++   hbx1 = uxmin;
++   hbx2 = uxmax;
++   hby1 = fYaxis->GetBinLowEdge(fYHighlightBin);
++   hby2 = fYaxis->GetBinUpEdge(fYHighlightBin);
++
++   if (!gYHighlightBox) {
++      gYHighlightBox = new TBox(hbx1, hby1, hbx2, hby2);
++      gYHighlightBox->SetBit(kCannotPick);
++      gYHighlightBox->SetFillColor(gXHighlightBox->GetFillColor());
++      gYHighlightBox->SetFillStyle(gXHighlightBox->GetFillStyle());
++   }
++   gYHighlightBox->SetX1(hbx1);
++   gYHighlightBox->SetX2(hbx2);
++   gYHighlightBox->SetY1(hby1);
++   gYHighlightBox->SetY2(hby2);
++   gYHighlightBox->Paint();
++}
++
++
++////////////////////////////////////////////////////////////////////////////////
+ /// Return `kTRUE` if the cell `ix`, `iy` is inside one of the graphical cuts.
+ 
+ Bool_t THistPainter::IsInside(Int_t ix, Int_t iy)
+@@ -8714,6 +8872,10 @@ void THistPainter::PaintTF3()
+ void THistPainter::PaintTitle()
+ {
+ 
++   // probably best place for calls PaintHighlightBin
++   // calls after paint histo (1D or 2D) and before paint title and stats
++   if (!gPad->GetView()) PaintHighlightBin();
++
+    if (Hoption.Same) return;
+    if (fH->TestBit(TH1::kNoTitle)) return;
+    Int_t nt = strlen(fH->GetTitle());
