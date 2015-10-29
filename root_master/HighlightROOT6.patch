@@ -11,10 +11,10 @@ index dfd8842..90b74e5 100644
     virtual void      Selected(TVirtualPad *pad, TObject *obj, Int_t event);            // *SIGNAL*
     virtual void      Cleared(TVirtualPad *pad);                                        // *SIGNAL*
 diff --git a/graf2d/gpad/src/TCanvas.cxx b/graf2d/gpad/src/TCanvas.cxx
-index 3261ebf..0da6517 100644
+index a437df2..9fa84ab 100644
 --- a/graf2d/gpad/src/TCanvas.cxx
 +++ b/graf2d/gpad/src/TCanvas.cxx
-@@ -1488,6 +1488,21 @@ void TCanvas::Picked(TPad *pad, TObject *obj, Int_t event)
+@@ -1498,6 +1498,21 @@ void TCanvas::Picked(TPad *pad, TObject *obj, Int_t event)
  }
  
  ////////////////////////////////////////////////////////////////////////////////
