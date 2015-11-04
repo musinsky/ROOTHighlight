@@ -133,10 +133,10 @@ index 475221d..c22d2e9 100644
     virtual void       SetStack(TList *stack) = 0;
     virtual Int_t      MakeCuts(char *cutsopt) = 0;
 diff --git a/hist/hist/src/TGraph.cxx b/hist/hist/src/TGraph.cxx
-index 54fee08..992dc15 100644
+index a313e86..2eead91 100644
 --- a/hist/hist/src/TGraph.cxx
 +++ b/hist/hist/src/TGraph.cxx
-@@ -2218,6 +2218,21 @@ void TGraph::SetEditable(Bool_t editable)
+@@ -2221,6 +2221,21 @@ void TGraph::SetEditable(Bool_t editable)
  
  
  //______________________________________________________________________________
