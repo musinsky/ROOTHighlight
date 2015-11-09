@@ -9,3 +9,6 @@ will be presented by TBox object and highlight point for graph by TMarker object
 (as open circle). Moreover, any change of bin or point emits signal
 **`TCanvas`**`::Highlighted()` which allows the user to react and call their own
 function.
+
+![Highlight mode for histogram](https://raw.githubusercontent.com/musinsky/ROOTHighlight/master/hlsimple.gif)
+
