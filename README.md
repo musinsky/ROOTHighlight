@@ -9,3 +9,54 @@ will be presented by TBox object and highlight point for graph by TMarker object
 (as open circle). Moreover, any change of bin or point emits signal
 **`TCanvas`**`::Highlighted()` which allows the user to react and call their own
 function.
+
+![Highlight mode for histogram](https://raw.githubusercontent.com/musinsky/ROOTHighlight/master/hlsimple.gif)
+
+Highlight mode is switched by function **`TH1`**`::SetHighlight()` for histogram
+or **`TGraph`**`::SetHighlight()` for graph. **`TH1`**`::IsHighlight()`
+(or **`TGraph`**`::IsHighlight()`) function to verify whether the highlight mode
+enabled or disabled.
+
+The user can connect **`TCanvas`**`::Highlighted()` signal, which is always emitted
+if there is a change bin (or point) and react in this way (call user function) to this
+change by moving the mouse.
+
+``` {.cpp}
+void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
+```
+- `pad` is pointer to pad with histogram or graph
+- `obj` is pointer to highlighted histogram or graph
+- `x` is highlighted X bin for 1D histogram or highlighted i-th point for graph
+- `y` is highlighted Y bin for 2D histogram (for 1D histogram or graph not in use)
+
+``` {.cpp}
+root [] .x $ROOTSYS/tutorials/hsimple.C
+root [] .x hlsimple.C
+root [] hpx->SetHighlight(kTRUE)
+```
+
+``` {.cpp}
+#include <TCanvas.h>
+#include <TH1.h>
+
+void HighlightSimple(TVirtualPad *p, TObject *o, Int_t x, Int_t y)
+{
+   TH1F *h = (TH1F *)o;
+   if (!h) return;
+
+   if (!h->IsHighlight()) { // after disabled
+      h->SetTitle("highlight disable");
+      return;
+   }
+
+   h->SetTitle(TString::Format("bin[%03d] (%5.2f) content %g",
+                               x, h->GetBinCenter(x), h->GetBinContent(x)));
+   p->Update();
+}
+
+void hlsimple()
+{
+   TQObject::Connect("TCanvas", "Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
+                     0, 0, "HighlightSimple(TVirtualPad*,TObject*,Int_t,Int_t)");
+}
+```
