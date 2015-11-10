@@ -31,8 +31,8 @@ void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 
 ``` {.cpp}
 root [] .x $ROOTSYS/tutorials/hsimple.C
-root [] .x hlsimple.C
 root [] hpx->SetHighlight(kTRUE)
+root [] .x hlsimple.C
 ```
 
 ``` {.cpp}
@@ -42,15 +42,12 @@ root [] hpx->SetHighlight(kTRUE)
 void HighlightSimple(TVirtualPad *p, TObject *o, Int_t x, Int_t y)
 {
    TH1F *h = (TH1F *)o;
-   if (!h) return;
 
-   if (!h->IsHighlight()) { // after disabled
+   if (!h->IsHighlight()) // after disabled
       h->SetTitle("highlight disable");
-      return;
-   }
-
-   h->SetTitle(TString::Format("bin[%03d] (%5.2f) content %g",
-                               x, h->GetBinCenter(x), h->GetBinContent(x)));
+   else
+      h->SetTitle(TString::Format("bin[%03d] (%5.2f) content %g", x,
+                                  h->GetBinCenter(x), h->GetBinContent(x)));
    p->Update();
 }
 
