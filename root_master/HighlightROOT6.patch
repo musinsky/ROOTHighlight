@@ -11,7 +11,7 @@ index dfd8842..90b74e5 100644
     virtual void      Selected(TVirtualPad *pad, TObject *obj, Int_t event);            // *SIGNAL*
     virtual void      Cleared(TVirtualPad *pad);                                        // *SIGNAL*
 diff --git a/graf2d/gpad/src/TCanvas.cxx b/graf2d/gpad/src/TCanvas.cxx
-index a437df2..9fa84ab 100644
+index adb364d..976da41 100644
 --- a/graf2d/gpad/src/TCanvas.cxx
 +++ b/graf2d/gpad/src/TCanvas.cxx
 @@ -1498,6 +1498,21 @@ void TCanvas::Picked(TPad *pad, TObject *obj, Int_t event)
@@ -49,10 +49,10 @@ index d4c7a6b..fb10020 100644
     void           SetStack(TList *stack);
     Int_t          MakeCuts(char *cutsOpt);
 diff --git a/graf3d/gl/src/TGLHistPainter.cxx b/graf3d/gl/src/TGLHistPainter.cxx
-index 585e2ce..6a77022 100644
+index 9ecb04f..7977fa3 100644
 --- a/graf3d/gl/src/TGLHistPainter.cxx
 +++ b/graf3d/gl/src/TGLHistPainter.cxx
-@@ -528,6 +528,15 @@ void TGLHistPainter::ProcessMessage(const char *m, const TObject *o)
+@@ -523,6 +523,15 @@ void TGLHistPainter::ProcessMessage(const char *m, const TObject *o)
  }
  
  ////////////////////////////////////////////////////////////////////////////////
