@@ -270,7 +270,7 @@ index 5c8d9fa..798a272 100644
     virtual void       SetStack(TList *stack) {fStack = stack;}
     virtual void       SetShowProjection(const char *option,Int_t nbins);
 diff --git a/hist/histpainter/src/TGraphPainter.cxx b/hist/histpainter/src/TGraphPainter.cxx
-index ca56af2..717aea2 100644
+index ca56af2..a47b269 100644
 --- a/hist/histpainter/src/TGraphPainter.cxx
 +++ b/hist/histpainter/src/TGraphPainter.cxx
 @@ -15,7 +15,7 @@
@@ -336,7 +336,7 @@ index ca56af2..717aea2 100644
     }
     if (distance < kMaxDiff) return distance;
  
-@@ -878,6 +908,86 @@ char *TGraphPainter::GetObjectInfoHelper(TGraph * /*theGraph*/, Int_t /*px*/, In
+@@ -878,6 +908,78 @@ char *TGraphPainter::GetObjectInfoHelper(TGraph * /*theGraph*/, Int_t /*px*/, In
  
  
  ////////////////////////////////////////////////////////////////////////////////
@@ -362,14 +362,6 @@ index ca56af2..717aea2 100644
 +   if (gHighlightMarker) { gHighlightMarker->Delete(); gHighlightMarker = 0; }
 +   // emit Highlighted() signal (user can check on disabled)
 +   if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, theGraph, gHighlightPoint, -1);
-+
-+
-+   //   // delete previous highlight marker from all canvases and from all (sub)pads
-+   //   if (TCanvas::SupportAlpha()) return;
-+   //   TIter next(gROOT->GetListOfCanvases());
-+   //   TVirtualPad *pad = 0;
-+   //   while ((pad = (TVirtualPad *)next()))
-+   //      if (pad && pad->FindObject(theGraph)) pad->Modified(kTRUE);
 +}
 +
 +
@@ -423,7 +415,7 @@ index ca56af2..717aea2 100644
  /// Paint a any kind of TGraph
  
  void TGraphPainter::PaintHelper(TGraph *theGraph, Option_t *option)
-@@ -3122,6 +3232,8 @@ void TGraphPainter::PaintGraphSimple(TGraph *theGraph, Option_t *option)
+@@ -3122,6 +3224,8 @@ void TGraphPainter::PaintGraphSimple(TGraph *theGraph, Option_t *option)
        PaintGraph(theGraph, theGraph->GetN(), theGraph->GetX(), theGraph->GetY(), option);
     }
  
@@ -433,7 +425,7 @@ index ca56af2..717aea2 100644
     // the fit function).
     TList *functions = theGraph->GetListOfFunctions();
 diff --git a/hist/histpainter/src/THistPainter.cxx b/hist/histpainter/src/THistPainter.cxx
-index c228921..f46e336 100644
+index c228921..0c9870a 100644
 --- a/hist/histpainter/src/THistPainter.cxx
 +++ b/hist/histpainter/src/THistPainter.cxx
 @@ -2430,6 +2430,9 @@ const Int_t kNMAX = 2000;
@@ -467,7 +459,7 @@ index c228921..f46e336 100644
     //     if object is 2D or 3D return this object
     if (fH->GetDimension() == 2) {
        if (fH->InheritsFrom(TH2Poly::Class())) {
-@@ -3102,6 +3112,154 @@ char *THistPainter::GetObjectInfo(Int_t px, Int_t py) const
+@@ -3102,6 +3112,146 @@ char *THistPainter::GetObjectInfo(Int_t px, Int_t py) const
  
  
  ////////////////////////////////////////////////////////////////////////////////
@@ -484,14 +476,6 @@ index c228921..f46e336 100644
 +   if (gYHighlightBox) { gYHighlightBox->Delete(); gYHighlightBox = 0; }
 +   // emit Highlighted() signal (user can check on disabled)
 +   if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, fH, fXHighlightBin, fYHighlightBin);
-+
-+
-+   //   // delete previous highlight box from all canvases and from all (sub)pads
-+   //   if (TCanvas::SupportAlpha()) return;
-+   //   TIter next(gROOT->GetListOfCanvases());
-+   //   TVirtualPad *pad = 0;
-+   //   while ((pad = (TVirtualPad *)next()))
-+   //      if (pad && pad->FindObject(fH)) pad->Paint();
 +}
 +
 +
@@ -622,7 +606,7 @@ index c228921..f46e336 100644
  /// Return `kTRUE` if the cell `ix`, `iy` is inside one of the graphical cuts.
  
  Bool_t THistPainter::IsInside(Int_t ix, Int_t iy)
-@@ -8714,6 +8872,10 @@ void THistPainter::PaintTF3()
+@@ -8714,6 +8864,10 @@ void THistPainter::PaintTF3()
  void THistPainter::PaintTitle()
  {
  

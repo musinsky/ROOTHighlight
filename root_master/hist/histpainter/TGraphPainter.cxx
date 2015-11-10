@@ -930,14 +930,6 @@ void TGraphPainter::SetHighlight(TGraph *theGraph)
    if (gHighlightMarker) { gHighlightMarker->Delete(); gHighlightMarker = 0; }
    // emit Highlighted() signal (user can check on disabled)
    if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, theGraph, gHighlightPoint, -1);
-
-
-   //   // delete previous highlight marker from all canvases and from all (sub)pads
-   //   if (TCanvas::SupportAlpha()) return;
-   //   TIter next(gROOT->GetListOfCanvases());
-   //   TVirtualPad *pad = 0;
-   //   while ((pad = (TVirtualPad *)next()))
-   //      if (pad && pad->FindObject(theGraph)) pad->Modified(kTRUE);
 }
 
 
