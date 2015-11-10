@@ -8,7 +8,7 @@ is graphically highlight (hence the name Highlight). Highlight bin for histogram
 will be presented by TBox object and highlight point for graph by TMarker object
 (as open circle). Moreover, any change of bin or point emits signal
 **`TCanvas`**`::Highlighted()` which allows the user to react and call their own
-function.
+function. For a better understanding please see this [demo video](https://youtu.be/3v2pKV2yoO4).
 
 ![Highlight mode for histogram](https://raw.githubusercontent.com/musinsky/ROOTHighlight/master/hlsimple.gif)
 
@@ -16,6 +16,11 @@ Highlight mode is switched by function **`TH1`**`::SetHighlight()` for histogram
 or **`TGraph`**`::SetHighlight()` for graph. **`TH1`**`::IsHighlight()`
 (or **`TGraph`**`::IsHighlight()`) function to verify whether the highlight mode
 enabled or disabled.
+
+``` {.cpp}
+root [] .x $ROOTSYS/tutorials/hsimple.C
+root [] hpx->SetHighlight(kTRUE)   // or interactively from TH1 context menu
+```
 
 The user can connect **`TCanvas`**`::Highlighted()` signal, which is always emitted
 if there is a change bin (or point) and react in this way (call user function) to this
