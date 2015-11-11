@@ -8,7 +8,7 @@ is graphically highlight (hence the name Highlight). Highlight bin for histogram
 will be presented by TBox object and highlight point for graph by TMarker object
 (as open circle). Moreover, any change of bin or point emits signal
 **`TCanvas`**`::Highlighted()` which allows the user to react and call their own
-function. For a better understanding please see this [demo video](https://youtu.be/3v2pKV2yoO4).
+function. For a better understanding please see this [demo video](https://youtu.be/_kWh53Q87Ew).
 
 ![Highlight mode for histogram](https://raw.githubusercontent.com/musinsky/ROOTHighlight/master/hlsimple.gif)
 
@@ -29,10 +29,10 @@ change by moving the mouse.
 ``` {.cpp}
 void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 ```
-- `pad` is pointer to pad with histogram or graph
+- `pad` is pointer to pad with highlighted histogram or graph
 - `obj` is pointer to highlighted histogram or graph
-- `x` is highlighted X bin for 1D histogram or highlighted i-th point for graph
-- `y` is highlighted Y bin for 2D histogram (for 1D histogram or graph not in use)
+- `x` is highlighted x bin for 1D histogram or highlighted x-th point for graph
+- `y` is highlighted y bin for 2D histogram (for 1D histogram or graph not in use)
 
 ``` {.cpp}
 root [] .x $ROOTSYS/tutorials/hsimple.C
