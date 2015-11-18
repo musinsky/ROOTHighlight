@@ -425,7 +425,7 @@ index ca56af2..a47b269 100644
     // the fit function).
     TList *functions = theGraph->GetListOfFunctions();
 diff --git a/hist/histpainter/src/THistPainter.cxx b/hist/histpainter/src/THistPainter.cxx
-index c228921..0c9870a 100644
+index db0028b..8b5b74a 100644
 --- a/hist/histpainter/src/THistPainter.cxx
 +++ b/hist/histpainter/src/THistPainter.cxx
 @@ -2430,6 +2430,9 @@ const Int_t kNMAX = 2000;
@@ -606,7 +606,7 @@ index c228921..0c9870a 100644
  /// Return `kTRUE` if the cell `ix`, `iy` is inside one of the graphical cuts.
  
  Bool_t THistPainter::IsInside(Int_t ix, Int_t iy)
-@@ -8714,6 +8864,10 @@ void THistPainter::PaintTF3()
+@@ -8705,6 +8855,10 @@ void THistPainter::PaintTF3()
  void THistPainter::PaintTitle()
  {
  
