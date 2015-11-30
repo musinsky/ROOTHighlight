@@ -270,7 +270,7 @@ index 5c8d9fa..798a272 100644
     virtual void       SetStack(TList *stack) {fStack = stack;}
     virtual void       SetShowProjection(const char *option,Int_t nbins);
 diff --git a/hist/histpainter/src/TGraphPainter.cxx b/hist/histpainter/src/TGraphPainter.cxx
-index ca56af2..a47b269 100644
+index 8f8556a..02b5775 100644
 --- a/hist/histpainter/src/TGraphPainter.cxx
 +++ b/hist/histpainter/src/TGraphPainter.cxx
 @@ -15,7 +15,7 @@
@@ -425,7 +425,7 @@ index ca56af2..a47b269 100644
     // the fit function).
     TList *functions = theGraph->GetListOfFunctions();
 diff --git a/hist/histpainter/src/THistPainter.cxx b/hist/histpainter/src/THistPainter.cxx
-index db0028b..8b5b74a 100644
+index d0578a8..1a84e5c 100644
 --- a/hist/histpainter/src/THistPainter.cxx
 +++ b/hist/histpainter/src/THistPainter.cxx
 @@ -2430,6 +2430,9 @@ const Int_t kNMAX = 2000;
