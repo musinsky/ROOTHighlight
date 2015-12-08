@@ -425,10 +425,10 @@ index 8f8556a..02b5775 100644
     // the fit function).
     TList *functions = theGraph->GetListOfFunctions();
 diff --git a/hist/histpainter/src/THistPainter.cxx b/hist/histpainter/src/THistPainter.cxx
-index d0578a8..1a84e5c 100644
+index bb2c73b..684fe05 100644
 --- a/hist/histpainter/src/THistPainter.cxx
 +++ b/hist/histpainter/src/THistPainter.cxx
-@@ -2430,6 +2430,9 @@ const Int_t kNMAX = 2000;
+@@ -2428,6 +2428,9 @@ const Int_t kNMAX = 2000;
  const Int_t kMAXCONTOUR  = 104;
  const UInt_t kCannotRotate = BIT(11);
  
@@ -438,7 +438,7 @@ index d0578a8..1a84e5c 100644
  static TString gStringEntries;
  static TString gStringMean;
  static TString gStringMeanX;
-@@ -2479,6 +2482,8 @@ THistPainter::THistPainter()
+@@ -2477,6 +2480,8 @@ THistPainter::THistPainter()
        fCuts[i] = 0;
        fCutsOpt[i] = 0;
     }
@@ -447,7 +447,7 @@ index d0578a8..1a84e5c 100644
  
     gStringEntries          = gEnv->GetValue("Hist.Stats.Entries",          "Entries");
     gStringMean             = gEnv->GetValue("Hist.Stats.Mean",             "Mean");
-@@ -2611,6 +2616,11 @@ Int_t THistPainter::DistancetoPrimitive(Int_t px, Int_t py)
+@@ -2609,6 +2614,11 @@ Int_t THistPainter::DistancetoPrimitive(Int_t px, Int_t py)
        }
     }
  
@@ -459,7 +459,7 @@ index d0578a8..1a84e5c 100644
     //     if object is 2D or 3D return this object
     if (fH->GetDimension() == 2) {
        if (fH->InheritsFrom(TH2Poly::Class())) {
-@@ -3102,6 +3112,146 @@ char *THistPainter::GetObjectInfo(Int_t px, Int_t py) const
+@@ -3100,6 +3110,146 @@ char *THistPainter::GetObjectInfo(Int_t px, Int_t py) const
  
  
  ////////////////////////////////////////////////////////////////////////////////
@@ -606,7 +606,7 @@ index d0578a8..1a84e5c 100644
  /// Return `kTRUE` if the cell `ix`, `iy` is inside one of the graphical cuts.
  
  Bool_t THistPainter::IsInside(Int_t ix, Int_t iy)
-@@ -8705,6 +8855,10 @@ void THistPainter::PaintTF3()
+@@ -8703,6 +8853,10 @@ void THistPainter::PaintTF3()
  void THistPainter::PaintTitle()
  {
  
