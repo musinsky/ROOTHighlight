@@ -178,11 +178,11 @@ index 37aecff..d8ecdf4 100644
  
  void TGraph::SetMaximum(Double_t maximum)
 diff --git a/hist/hist/src/TH1.cxx b/hist/hist/src/TH1.cxx
-index 722ec1f..e611f6e 100644
+index 0a3af7f..55367ed 100644
 --- a/hist/hist/src/TH1.cxx
 +++ b/hist/hist/src/TH1.cxx
-@@ -4078,6 +4078,27 @@ Double_t TH1::GetEffectiveEntries() const
- 
+@@ -4004,6 +4004,26 @@ Double_t TH1::GetEffectiveEntries() const
+ }
  
  ////////////////////////////////////////////////////////////////////////////////
 +/// Set highlight (enable/disable) mode for the histogram
@@ -203,7 +203,6 @@ index 722ec1f..e611f6e 100644
 +   SetBit(kIsHighlight, set);
 +   fPainter->SetHighlight();
 +}
-+
 +
 +////////////////////////////////////////////////////////////////////////////////
  /// Redefines TObject::GetObjectInfo.
@@ -617,3 +616,21 @@ index bb2c73b..684fe05 100644
     if (Hoption.Same) return;
     if (fH->TestBit(TH1::kNoTitle)) return;
     Int_t nt = strlen(fH->GetTitle());
+diff --git a/tutorials/multicore/mp001_fillHistos.C b/tutorials/multicore/mp001_fillHistos.C
+index 7bdab86..3c7cc0d 100644
+--- a/tutorials/multicore/mp001_fillHistos.C
++++ b/tutorials/multicore/mp001_fillHistos.C
+@@ -8,11 +8,11 @@
+ ///
+ /// \author Danilo Piparo
+ 
+-Int_t mp001_fillHistos(UInt_t nWorkers = 4)
++Int_t mp001_fillHistos(UInt_t nWorkers = 2)
+ {
+ 
+    // Total amount of numbers
+-   const UInt_t nNumbers = 20000000U;
++   const UInt_t nNumbers = 200000000U;
+ 
+    // We define our work item
+    auto workItem = [nNumbers](UInt_t workerID) {
