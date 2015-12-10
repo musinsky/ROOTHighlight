@@ -616,21 +616,3 @@ index bb2c73b..684fe05 100644
     if (Hoption.Same) return;
     if (fH->TestBit(TH1::kNoTitle)) return;
     Int_t nt = strlen(fH->GetTitle());
-diff --git a/tutorials/multicore/mp001_fillHistos.C b/tutorials/multicore/mp001_fillHistos.C
-index 7bdab86..3c7cc0d 100644
---- a/tutorials/multicore/mp001_fillHistos.C
-+++ b/tutorials/multicore/mp001_fillHistos.C
-@@ -8,11 +8,11 @@
- ///
- /// \author Danilo Piparo
- 
--Int_t mp001_fillHistos(UInt_t nWorkers = 4)
-+Int_t mp001_fillHistos(UInt_t nWorkers = 2)
- {
- 
-    // Total amount of numbers
--   const UInt_t nNumbers = 20000000U;
-+   const UInt_t nNumbers = 200000000U;
- 
-    // We define our work item
-    auto workItem = [nNumbers](UInt_t workerID) {
