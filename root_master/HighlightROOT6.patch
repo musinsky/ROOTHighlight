@@ -99,16 +99,16 @@ index 51496e4..18d2d7f 100644
     virtual void          SetMaximum(Double_t maximum=-1111); // *MENU*
     virtual void          SetMinimum(Double_t minimum=-1111); // *MENU*
 diff --git a/hist/hist/inc/TH1.h b/hist/hist/inc/TH1.h
-index 014e613..eac8003 100644
+index 91ff0d6..bd2759b 100644
 --- a/hist/hist/inc/TH1.h
 +++ b/hist/hist/inc/TH1.h
 @@ -172,7 +172,8 @@ public:
-       kIsZoomed    = BIT(16), // bit set when zooming on Y axis
-       kNoTitle     = BIT(17), // don't draw the histogram title
-       kIsAverage   = BIT(18), // Bin contents are average (used by Add)
--      kIsNotW      = BIT(19)  // Histogram is forced to be not weighted even when the histogram is filled with weighted different than 1.
-+      kIsNotW      = BIT(19), // Histogram is forced to be not weighted even when the histogram is filled with weighted different than 1.
-+      kIsHighlight = BIT(20)  // bit set if histo is highlight
+       kIsZoomed    = BIT(16), ///< bit set when zooming on Y axis
+       kNoTitle     = BIT(17), ///< don't draw the histogram title
+       kIsAverage   = BIT(18), ///< Bin contents are average (used by Add)
+-      kIsNotW      = BIT(19)  ///< Histogram is forced to be not weighted even when the histogram is filled with weighted different than 1.
++      kIsNotW      = BIT(19), ///< Histogram is forced to be not weighted even when the histogram is filled with weighted different than 1.
++      kIsHighlight = BIT(20)  ///< bit set if histo is highlight
     };
     // size of statistics data (size of  array used in GetStats()/ PutStats )
     // s[0]  = sumw       s[1]  = sumw2
@@ -178,10 +178,10 @@ index 37aecff..d8ecdf4 100644
  
  void TGraph::SetMaximum(Double_t maximum)
 diff --git a/hist/hist/src/TH1.cxx b/hist/hist/src/TH1.cxx
-index 0a3af7f..55367ed 100644
+index f50b219..e0de211 100644
 --- a/hist/hist/src/TH1.cxx
 +++ b/hist/hist/src/TH1.cxx
-@@ -4004,6 +4004,26 @@ Double_t TH1::GetEffectiveEntries() const
+@@ -4072,6 +4072,26 @@ Double_t TH1::GetEffectiveEntries() const
  }
  
  ////////////////////////////////////////////////////////////////////////////////
