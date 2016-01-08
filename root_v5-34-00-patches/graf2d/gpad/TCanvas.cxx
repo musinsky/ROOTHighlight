@@ -1513,10 +1513,10 @@ void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 
    Long_t args[4];
 
-   args[0] = (Long_t)pad;
-   args[1] = (Long_t)obj;
-   args[2] = (Long_t)x;
-   args[3] = (Long_t)y;
+   args[0] = (Long_t) pad;
+   args[1] = (Long_t) obj;
+   args[2] = x;
+   args[3] = y;
 
    Emit("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)", args);
 }

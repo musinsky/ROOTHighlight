@@ -159,7 +159,7 @@ public:
       kIsZoomed    = BIT(16), // bit set when zooming on Y axis
       kNoTitle     = BIT(17), // don't draw the histogram title
       kIsAverage   = BIT(18), // Bin contents are average (used by Add)
-      kIsHighlight = BIT(19)  // bit set if histo is highlight
+      kIsHighlight = BIT(19)  // bit set if histo is highlight (in ROOT6 BIT(20))
    };
    // size of statistics data (size of  array used in GetStats()/ PutStats ) 
    // s[0]  = sumw       s[1]  = sumw2

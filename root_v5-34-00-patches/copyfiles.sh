@@ -7,6 +7,7 @@ WHERE=.
 cp -pv $ROOTDIR/graf2d/gpad/inc/TCanvas.h $WHERE
 cp -pv $ROOTDIR/graf2d/gpad/src/TCanvas.cxx $WHERE
 cp -pv $ROOTDIR/graf3d/gl/inc/TGLHistPainter.h $WHERE
+cp -pv $ROOTDIR/graf3d/gl/src/TGLHistPainter.cxx $WHERE
 cp -pv $ROOTDIR/hist/hist/inc/TGraph.h $WHERE
 cp -pv $ROOTDIR/hist/hist/inc/TH1.h $WHERE
 cp -pv $ROOTDIR/hist/hist/inc/TVirtualGraphPainter.h $WHERE

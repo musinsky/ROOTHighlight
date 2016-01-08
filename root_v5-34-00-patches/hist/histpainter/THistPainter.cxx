@@ -3604,21 +3604,13 @@ void THistPainter::SetHighlight()
    if (gYHighlightBox) { gYHighlightBox->Delete(); gYHighlightBox = 0; }
    // emit Highlighted() signal (user can check on disabled)
    if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, fH, fXHighlightBin, fYHighlightBin);
-
-
-   //   // delete previous highlight box from all canvases and from all (sub)pads
-   //   if (TCanvas::SupportAlpha()) return;
-   //   TIter next(gROOT->GetListOfCanvases());
-   //   TVirtualPad *pad = 0;
-   //   while ((pad = (TVirtualPad *)next()))
-   //      if (pad && pad->FindObject(fH)) pad->Paint();
 }
 
 
 //______________________________________________________________________________
 void THistPainter::HighlightBin(Int_t px, Int_t py)
 {
-   // Check for highlight bin
+   // Check on highlight bin
    // call from DistancetoPrimitive (only if highlight is enable)
 
    Double_t x = gPad->PadtoX(gPad->AbsPixeltoX(px));

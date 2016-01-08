@@ -77,7 +77,7 @@ public:
    void           Paint(Option_t *option);
    void           PaintStat(Int_t dostat, TF1 *fit);
    void           ProcessMessage(const char *message, const TObject *obj);
-   void           SetHighlight() {;}
+   void           SetHighlight();
    void           SetHistogram(TH1 *hist);
    void           SetStack(TList *stack);
    Int_t          MakeCuts(char *cutsOpt);

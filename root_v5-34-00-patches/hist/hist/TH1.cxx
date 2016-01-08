@@ -4027,7 +4027,7 @@ Double_t TH1::GetEffectiveEntries() const
 //______________________________________________________________________________
 void TH1::SetHighlight(Bool_t set)
 {
-   // Set highlight (enable/disble) mode for the histogram
+   // Set highlight (enable/disable) mode for the histogram
    // by default highlight mode is disable
 
    if (IsHighlight() == set) return;
