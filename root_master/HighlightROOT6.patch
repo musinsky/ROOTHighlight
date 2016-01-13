@@ -178,7 +178,7 @@ index 37aecff..d8ecdf4 100644
  
  void TGraph::SetMaximum(Double_t maximum)
 diff --git a/hist/hist/src/TH1.cxx b/hist/hist/src/TH1.cxx
-index f50b219..e0de211 100644
+index d5d814c..598e7ff 100644
 --- a/hist/hist/src/TH1.cxx
 +++ b/hist/hist/src/TH1.cxx
 @@ -4072,6 +4072,26 @@ Double_t TH1::GetEffectiveEntries() const
