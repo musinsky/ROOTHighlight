@@ -56,6 +56,11 @@ public:
    void           PaintStats(TGraph *theGraph, TF1 *fit);
    virtual void   SetHighlight(TGraph *theGraph);
    void           Smooth(TGraph *theGraph, Int_t npoints, Double_t *x, Double_t *y, Int_t drawtype);
+   static void    SetMaxPointsPerLine(Int_t maxp=50);
+
+protected:
+
+   static Int_t   fgMaxPointsPerLine;  //Number of points per chunks' line when drawing a graph.
 
    ClassDef(TGraphPainter,0)  // TGraph painter
 };
