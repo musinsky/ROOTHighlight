@@ -425,7 +425,7 @@ index d9c374a..fde926e 100644
     // the fit function).
     TList *functions = theGraph->GetListOfFunctions();
 diff --git a/hist/histpainter/src/THistPainter.cxx b/hist/histpainter/src/THistPainter.cxx
-index bb2c73b..684fe05 100644
+index 5436a9b..5bf2c12 100644
 --- a/hist/histpainter/src/THistPainter.cxx
 +++ b/hist/histpainter/src/THistPainter.cxx
 @@ -2428,6 +2428,9 @@ const Int_t kNMAX = 2000;
@@ -459,7 +459,7 @@ index bb2c73b..684fe05 100644
     //     if object is 2D or 3D return this object
     if (fH->GetDimension() == 2) {
        if (fH->InheritsFrom(TH2Poly::Class())) {
-@@ -3100,6 +3110,146 @@ char *THistPainter::GetObjectInfo(Int_t px, Int_t py) const
+@@ -3105,6 +3115,146 @@ char *THistPainter::GetObjectInfo(Int_t px, Int_t py) const
  
  
  ////////////////////////////////////////////////////////////////////////////////
@@ -606,7 +606,7 @@ index bb2c73b..684fe05 100644
  /// Return `kTRUE` if the cell `ix`, `iy` is inside one of the graphical cuts.
  
  Bool_t THistPainter::IsInside(Int_t ix, Int_t iy)
-@@ -8703,6 +8853,10 @@ void THistPainter::PaintTF3()
+@@ -8708,6 +8858,10 @@ void THistPainter::PaintTF3()
  void THistPainter::PaintTitle()
  {
  
