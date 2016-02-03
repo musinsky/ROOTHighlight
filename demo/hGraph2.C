@@ -39,8 +39,7 @@ void hGraph2()
    info->Draw();
 
    graph->SetHighlight();
-   c1->Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-               0, 0, "HighlightBinId(TVirtualPad*,TObject*,Int_t,Int_t)");
+   c1->HighlightConnect("HighlightBinId(TVirtualPad*,TObject*,Int_t,Int_t)");
 
    TCanvas *c2 = new TCanvas("c2", "c2", 505, 0, 600, 400);
    ntuple->Draw("TMath::Sqrt(px*px + py*py + pz*pz)>>histo(100, 0, 15)", cut);

@@ -65,8 +65,7 @@ void hquantiles() {
    info->Draw();
 
    gr->SetHighlight();
-   c1->Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-               0, 0, "HighlightQuantile(TVirtualPad*,TObject*,Int_t,Int_t)");
+   c1->HighlightConnect("HighlightQuantile(TVirtualPad*,TObject*,Int_t,Int_t)");
 
    // show the evolution of some  quantiles in the bottom pad
    c1->cd(3);

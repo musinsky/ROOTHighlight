@@ -27,8 +27,7 @@ void hgraphtext() {
    info->Draw();
 
    gr->SetHighlight();
-   c->Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-              0, 0, "drawtext(TVirtualPad*,TObject*,Int_t,Int_t)");
+   c->HighlightConnect("drawtext(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 
 void drawtext(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t /*y*/)

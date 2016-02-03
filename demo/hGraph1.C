@@ -44,13 +44,12 @@ void hGraph1()
    ch->cd();
 
    g->SetHighlight();
-   ch->Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-               0, 0, "HighlightHisto(TVirtualPad*,TObject*,Int_t,Int_t)");
+   ch->HighlightConnect("HighlightHisto(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 
 void HighlightHisto(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t /*y*/)
 {
-   if (ihp == -1) return;
+   if (ihp == -1) return; // after disabled
    TVirtualPad *ph = (TVirtualPad *)pad->FindObject("ph");
    if (!ph) return;
 

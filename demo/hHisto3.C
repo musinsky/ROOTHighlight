@@ -55,8 +55,7 @@ void hHisto3()
 
    histo1->SetHighlight();
    histo2->SetHighlight();
-   c1->Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-               0, 0, "Highlight3(TVirtualPad*,TObject*,Int_t,Int_t)");
+   c1->HighlightConnect("Highlight3(TVirtualPad*,TObject*,Int_t,Int_t)");
 
    // common graph (all entries, all histo bins)
    c2->cd();

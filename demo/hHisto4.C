@@ -31,8 +31,7 @@ void hHisto4()
    c1->Update();
 
    h1->SetHighlight();
-   c1->Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-               0, 0, "HighlightZoom(TVirtualPad*,TObject*,Int_t,Int_t)");
+   c1->HighlightConnect("HighlightZoom(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 
 void HighlightZoom(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)

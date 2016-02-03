@@ -61,8 +61,7 @@ void temperature()
 
    // highlight
    hYear->SetHighlight();
-   c1->Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)", 0, 0,
-               "HighlightTemp(TVirtualPad*,TObject*,Int_t,Int_t)");
+   c1->HighlightConnect("HighlightTemp(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 
 void HighlightTemp(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)

@@ -25,8 +25,7 @@ void hHisto2()
    c1->Update();
 
    h2->SetHighlight();
-   c1->Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-               0, 0, "Highlight2(TVirtualPad*,TObject*,Int_t,Int_t)");
+   c1->HighlightConnect("Highlight2(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 
 void Highlight2(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
