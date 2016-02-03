@@ -25,6 +25,8 @@ The user can use (connect) **`TCanvas`**`::Highlighted()` signal, which is alway
 if there is a change bin (or point) and call user function via signal and slot communication
 mechanism.
 
+User function has to be defined **`UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)`**.
+All user function parametrs are taken from 
 ``` {.cpp}
 void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 ```
@@ -43,7 +45,7 @@ root [] .x hlsimple.C
 #include <TCanvas.h>
 #include <TH1.h>
 
-void HighlightSimple(TVirtualPad *p, TObject *o, Int_t x, Int_t y)
+void UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 {
    TH1F *h = (TH1F *)o;
 
@@ -58,6 +60,6 @@ void HighlightSimple(TVirtualPad *p, TObject *o, Int_t x, Int_t y)
 void hlsimple()
 {
    TQObject::Connect("TCanvas", "Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-                     0, 0, "HighlightSimple(TVirtualPad*,TObject*,Int_t,Int_t)");
+                     0, 0, "UserFunction(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 ```
