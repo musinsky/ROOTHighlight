@@ -52,7 +52,7 @@ void PrintInfo(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
    else
       h->SetTitle(TString::Format("bin[%03d] (%5.2f) content %g", x,
                                   h->GetBinCenter(x), h->GetBinContent(x)));
-   p->Update();
+   pad->Update();
 }
 
 void hlprint()
