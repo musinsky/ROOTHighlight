@@ -23,10 +23,8 @@ root [] hpx->SetHighlight(kTRUE)   // or interactively from TH1 context menu
 
 The user can use (connect) **`TCanvas`**`::Highlighted()` signal, which is always emitted
 if there is a change bin (or point) and call user function via signal and slot communication
-mechanism.
-
-User function has to be defined **`UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)`**.
-All user function parametrs are taken from 
+mechanism. User function has to be defined **`UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)`**
+(in example, see below, has name **`PrintInfo()`**). All parameters of user function are taken from
 ``` {.cpp}
 void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 ```
@@ -38,16 +36,16 @@ void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 ``` {.cpp}
 root [] .x $ROOTSYS/tutorials/hsimple.C
 root [] hpx->SetHighlight(kTRUE)
-root [] .x hlsimple.C
+root [] .x hlprint.C
 ```
 
 ``` {.cpp}
 #include <TCanvas.h>
 #include <TH1.h>
 
-void UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
+void PrintInfo(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 {
-   TH1F *h = (TH1F *)o;
+   TH1F *h = (TH1F *)obj;
 
    if (!h->IsHighlight()) // after disabled
       h->SetTitle("highlight disable");
@@ -57,9 +55,9 @@ void UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
    p->Update();
 }
 
-void hlsimple()
+void hlprint()
 {
    TQObject::Connect("TCanvas", "Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-                     0, 0, "UserFunction(TVirtualPad*,TObject*,Int_t,Int_t)");
+                     0, 0, "PrintInfo(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 ```
