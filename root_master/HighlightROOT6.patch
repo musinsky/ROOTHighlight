@@ -1,8 +1,16 @@
 diff --git a/graf2d/gpad/inc/TCanvas.h b/graf2d/gpad/inc/TCanvas.h
-index dfd8842..90b74e5 100644
+index dfd8842..a791f31 100644
 --- a/graf2d/gpad/inc/TCanvas.h
 +++ b/graf2d/gpad/inc/TCanvas.h
-@@ -203,6 +203,7 @@ public:
+@@ -189,6 +189,7 @@ public:
+                      {wtopx=GetWindowTopX(); wtopy=fWindowTopY; ww=fWindowWidth; wh=fWindowHeight;}
+    virtual void      HandleInput(EEventType button, Int_t x, Int_t y);
+    Bool_t            HasMenuBar() const { return TestBit(kMenuBar); }
++   virtual void      HighlightConnect(const char *slot);
+    void              Iconify() { fCanvasImp->Iconify(); }
+    Bool_t            IsBatch() const { return fBatch; }
+    Bool_t            IsDrawn() { return fDrawn; }
+@@ -203,6 +204,7 @@ public:
     virtual TPad     *Pick(Int_t px, Int_t py, TObjLink *&pickobj) { return TPad::Pick(px, py, pickobj); }
     virtual TPad     *Pick(Int_t px, Int_t py, TObject *prevSelObj);
     virtual void      Picked(TPad *selpad, TObject *selected, Int_t event);             // *SIGNAL*
@@ -11,14 +19,19 @@ index dfd8842..90b74e5 100644
     virtual void      Selected(TVirtualPad *pad, TObject *obj, Int_t event);            // *SIGNAL*
     virtual void      Cleared(TVirtualPad *pad);                                        // *SIGNAL*
 diff --git a/graf2d/gpad/src/TCanvas.cxx b/graf2d/gpad/src/TCanvas.cxx
-index adb364d..976da41 100644
+index adb364d..d586c5e 100644
 --- a/graf2d/gpad/src/TCanvas.cxx
 +++ b/graf2d/gpad/src/TCanvas.cxx
-@@ -1498,6 +1498,21 @@ void TCanvas::Picked(TPad *pad, TObject *obj, Int_t event)
+@@ -1498,6 +1498,37 @@ void TCanvas::Picked(TPad *pad, TObject *obj, Int_t event)
  }
  
  ////////////////////////////////////////////////////////////////////////////////
 +/// Emit Highlighted() signal.
++///
++/// pad is pointer to pad with highlighted histogram or graph
++/// obj is pointer to highlighted histogram or graph
++/// x   is highlighted x bin for 1D histogram or highlighted x-th point for graph
++/// y   is highlighted y bin for 2D histogram (for 1D histogram or graph not in use)
 +
 +void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 +{
@@ -30,6 +43,17 @@ index adb364d..976da41 100644
 +   args[3] = y;
 +
 +   Emit("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)", args);
++}
++
++////////////////////////////////////////////////////////////////////////////////
++/// This is helper for function TCanvas::Connect for specific slot.
++///
++/// Slot has to be defined "UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)"
++/// all parameters of UserFunction are taken from TCanvas::Highlighted
++
++void TCanvas::HighlightConnect(const char *slot)
++{
++   Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)", 0, 0, slot);
 +}
 +
 +////////////////////////////////////////////////////////////////////////////////
