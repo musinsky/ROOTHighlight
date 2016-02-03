@@ -23,7 +23,7 @@ root [] hpx->SetHighlight(kTRUE)   // or interactively from TH1 context menu
 
 The user can use (connect) **`TCanvas`**`::Highlighted()` signal, which is always emitted
 if there is a change bin (or point) and call user function via signal and slot communication
-mechanism. User function has to be defined **`UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)`**
+mechanism. Any user function has to be defined **`UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)`**
 (in example, see below, has name **`PrintInfo()`**). All parameters of user function are taken from
 ``` {.cpp}
 void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
