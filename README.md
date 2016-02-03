@@ -1,17 +1,17 @@
 Function `SetHighlight()` is implemented for **`TH1`** and **`TGraph`** class.
 This function switches on/off highlight mode, by default it is disabled.
 
-When Highlight mode in ROOT is on, mouse movement reflects any change of the
-bin (for histogram) or change of point (for graph). Since (because) this change
-of bin (or point) is reflected graphically, it is called Highlight. Highlight
-bin for histogram will be presented by box object and highlight point for graph
-by marker object (as open circle). Moreover, any change of bin or point emits
+When Highlight mode is on, mouse movement over the bin (for histogram) or point (for graph)
+will be represented graphically. In case of the histogram, color of the bin will change
+(presented by box object) and in case of the graph, point will be highlighted as open circle
+(presented by marker object). Moreover, any change of bin or point emits
 signal **`TCanvas`**`::Highlighted()` which allows the user to react and call
-their own function. For a better understanding please see this [demo video](https://youtu.be/_kWh53Q87Ew).
+their own function. For a better understanding please see
+this [demo video](https://youtu.be/_kWh53Q87Ew).
 
 ![Highlight mode for histogram](https://raw.githubusercontent.com/musinsky/ROOTHighlight/master/hlsimple.gif)
 
-Highlight mode is switched by function **`TH1`**`::SetHighlight()` for histogram
+Highlight mode is switched on/off by function **`TH1`**`::SetHighlight()` for histogram
 or **`TGraph`**`::SetHighlight()` for graph. **`TH1`**`::IsHighlight()`
 (or **`TGraph`**`::IsHighlight()`) function to verify whether the highlight mode
 enabled or disabled.
@@ -21,9 +21,9 @@ root [] .x $ROOTSYS/tutorials/hsimple.C
 root [] hpx->SetHighlight(kTRUE)   // or interactively from TH1 context menu
 ```
 
-The user can connect **`TCanvas`**`::Highlighted()` signal, which is always emitted
-if there is a change bin (or point) and react in this way (call user function) to this
-change by moving the mouse.
+The user can use (connect) **`TCanvas`**`::Highlighted()` signal, which is always emitted
+if there is a change bin (or point) and call user function via signal and slot communication
+mechanism.
 
 ``` {.cpp}
 void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
