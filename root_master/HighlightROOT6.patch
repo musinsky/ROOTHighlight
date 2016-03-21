@@ -123,7 +123,7 @@ index 51496e4..18d2d7f 100644
     virtual void          SetMaximum(Double_t maximum=-1111); // *MENU*
     virtual void          SetMinimum(Double_t minimum=-1111); // *MENU*
 diff --git a/hist/hist/inc/TH1.h b/hist/hist/inc/TH1.h
-index 91ff0d6..bd2759b 100644
+index dc34897..bdd776e 100644
 --- a/hist/hist/inc/TH1.h
 +++ b/hist/hist/inc/TH1.h
 @@ -172,7 +172,8 @@ public:
@@ -136,7 +136,7 @@ index 91ff0d6..bd2759b 100644
     };
     // size of statistics data (size of  array used in GetStats()/ PutStats )
     // s[0]  = sumw       s[1]  = sumw2
-@@ -330,6 +331,7 @@ public:
+@@ -331,6 +332,7 @@ public:
     virtual Double_t Interpolate(Double_t x, Double_t y, Double_t z);
             Bool_t   IsBinOverflow(Int_t bin) const;
             Bool_t   IsBinUnderflow(Int_t bin) const;
@@ -144,7 +144,7 @@ index 91ff0d6..bd2759b 100644
     virtual Double_t AndersonDarlingTest(const TH1 *h2, Option_t *option="") const;
     virtual Double_t AndersonDarlingTest(const TH1 *h2, Double_t &advalue) const;
     virtual Double_t KolmogorovTest(const TH1 *h2, Option_t *option="") const;
-@@ -381,6 +383,7 @@ public:
+@@ -382,6 +384,7 @@ public:
     virtual void     SetDirectory(TDirectory *dir);
     virtual void     SetEntries(Double_t n) {fEntries = n;};
     virtual void     SetError(const Double_t *error);
@@ -202,7 +202,7 @@ index 37aecff..d8ecdf4 100644
  
  void TGraph::SetMaximum(Double_t maximum)
 diff --git a/hist/hist/src/TH1.cxx b/hist/hist/src/TH1.cxx
-index d5d814c..598e7ff 100644
+index 7f43786..c08928a 100644
 --- a/hist/hist/src/TH1.cxx
 +++ b/hist/hist/src/TH1.cxx
 @@ -4072,6 +4072,26 @@ Double_t TH1::GetEffectiveEntries() const
@@ -232,6 +232,15 @@ index d5d814c..598e7ff 100644
  /// Redefines TObject::GetObjectInfo.
  /// Displays the histogram info (bin number, contents, integral up to bin
  /// corresponding to cursor position px,py
+@@ -8053,7 +8073,7 @@ Int_t TH1::GetMinimumBin(Int_t &locmix, Int_t &locmiy, Int_t &locmiz) const
+ /// Retrieve the minimum and maximum values in the histogram
+ ///
+ /// This will not return a cached value and will always search the
+-/// histogram for the min and max values. The user can condition whether 
++/// histogram for the min and max values. The user can condition whether
+ /// or not to call this with the GetMinimumStored() and GetMaximumStored()
+ /// methods. If the cache is empty, then the value will be -1111. Users
+ /// can then use the SetMinimum() or SetMaximum() methods to cache the results.
 diff --git a/hist/histpainter/inc/TGraphPainter.h b/hist/histpainter/inc/TGraphPainter.h
 index beecd2f..23867b6 100644
 --- a/hist/histpainter/inc/TGraphPainter.h
