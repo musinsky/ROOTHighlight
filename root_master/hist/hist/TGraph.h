@@ -21,24 +21,12 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef ROOT_TNamed
 #include "TNamed.h"
-#endif
-#ifndef ROOT_TAttLine
 #include "TAttLine.h"
-#endif
-#ifndef ROOT_TAttFill
 #include "TAttFill.h"
-#endif
-#ifndef ROOT_TAttMarker
 #include "TAttMarker.h"
-#endif
-#ifndef ROOT_TVectorFfwd
 #include "TVectorFfwd.h"
-#endif
-#ifndef ROOT_TVectorDfwd
 #include "TVectorDfwd.h"
-#endif
 
 class TBrowser;
 class TAxis;
@@ -54,14 +42,14 @@ class TGraph : public TNamed, public TAttLine, public TAttFill, public TAttMarke
 
 protected:
 
-   Int_t              fMaxSize;   //!Current dimension of arrays fX and fY
-   Int_t              fNpoints;   //Number of points <= fMaxSize
-   Double_t          *fX;         //[fNpoints] array of X points
-   Double_t          *fY;         //[fNpoints] array of Y points
-   TList             *fFunctions; //Pointer to list of functions (fits and user)
-   TH1F              *fHistogram; //Pointer to histogram used for drawing axis
-   Double_t           fMinimum;   //Minimum value for plotting along y
-   Double_t           fMaximum;   //Maximum value for plotting along y
+   Int_t              fMaxSize;   ///<!Current dimension of arrays fX and fY
+   Int_t              fNpoints;   ///< Number of points <= fMaxSize
+   Double_t          *fX;         ///<[fNpoints] array of X points
+   Double_t          *fY;         ///<[fNpoints] array of Y points
+   TList             *fFunctions; ///< Pointer to list of functions (fits and user)
+   TH1F              *fHistogram; ///< Pointer to histogram used for drawing axis
+   Double_t           fMinimum;   ///< Minimum value for plotting along y
+   Double_t           fMaximum;   ///< Maximum value for plotting along y
 
    static void        SwapValues(Double_t* arr, Int_t pos1, Int_t pos2);
    virtual void       SwapPoints(Int_t pos1, Int_t pos2);
@@ -78,10 +66,12 @@ protected:
 
 public:
    // TGraph status bits
-   enum {
-      kClipFrame     = BIT(10),  // clip to the frame boundary
-      kNotEditable   = BIT(18),  // bit set if graph is non editable
-      kIsHighlight   = BIT(19)   // bit set if graph is highlight
+   enum EStatusBits {
+      kClipFrame     = BIT(10),  ///< clip to the frame boundary
+      kResetHisto    = BIT(17),  ///< fHistogram must be reset in GetHistogram
+      kNotEditable   = BIT(18),  ///< bit set if graph is non editable
+      kIsSortedX     = BIT(19),  ///< graph is sorted in X points
+      kIsHighlight   = BIT(20)   ///< bit set if graph is highlight
    };
 
    TGraph();
@@ -159,6 +149,7 @@ public:
    virtual void          InitGaus(Double_t xmin=0, Double_t xmax=0);
    virtual void          InitPolynom(Double_t xmin=0, Double_t xmax=0);
    virtual Int_t         InsertPoint(); // *MENU*
+   virtual void          InsertPointBefore(Int_t ipoint, Double_t x, Double_t y);
    virtual Double_t      Integral(Int_t first=0, Int_t last=-1) const;
    virtual Bool_t        IsEditable() const {return !TestBit(kNotEditable);}
    virtual Bool_t        IsHighlight() const { return TestBit(kIsHighlight); }
@@ -182,6 +173,8 @@ public:
    virtual void          SetMinimum(Double_t minimum=-1111); // *MENU*
    virtual void          Set(Int_t n);
    virtual void          SetPoint(Int_t i, Double_t x, Double_t y);
+   virtual void          SetName(const char *name=""); // *MENU*
+   virtual void          SetNameTitle(const char *name="", const char *title="");
    virtual void          SetTitle(const char *title="");    // *MENU*
    virtual void          Sort(Bool_t (*greater)(const TGraph*, Int_t, Int_t)=&TGraph::CompareX,
                               Bool_t ascending=kTRUE, Int_t low=0, Int_t high=-1111);

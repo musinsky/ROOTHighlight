@@ -21,12 +21,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 
-#ifndef ROOT_TVirtualHistPainter
 #include "TVirtualHistPainter.h"
-#endif
-#ifndef ROOT_TString
 #include "TString.h"
-#endif
 
 #include <vector>
 #include <utility>
@@ -94,7 +90,6 @@ public:
    virtual void       PaintBarH(Option_t *option);
    virtual void       PaintBoxes(Option_t *option);
    virtual void       PaintCandlePlot(Option_t *option);
-   virtual void       PaintViolinPlot(Option_t *option);
    virtual void       PaintColorLevels(Option_t *option);
    virtual void       PaintColorLevelsFast(Option_t *option);
    virtual std::vector<THistRenderingRegion> ComputeRenderingRegions(TAxis *pAxis, Int_t nPixels, bool isLog);
@@ -105,8 +100,8 @@ public:
    virtual void       PaintTH2PolyText(Option_t *option);
    virtual void       PaintContour(Option_t *option);
    virtual Int_t      PaintContourLine(Double_t elev1, Int_t icont1, Double_t x1, Double_t y1,
-                          Double_t elev2, Int_t icont2, Double_t x2, Double_t y2,
-                          Double_t *xarr, Double_t *yarr, Int_t *itarr, Double_t *levels);
+                                       Double_t elev2, Int_t icont2, Double_t x2, Double_t y2,
+                                       Double_t *xarr, Double_t *yarr, Int_t *itarr, Double_t *levels);
    virtual void       PaintErrors(Option_t *option);
    virtual void       Paint2DErrors(Option_t *option);
    virtual void       PaintFrame();
@@ -114,6 +109,8 @@ public:
    virtual void       PaintHighlightBin(Option_t *option="");
    virtual void       PaintHist(Option_t *option);
    virtual void       PaintH3(Option_t *option="");
+   virtual void       PaintH3Box(Int_t iopt);
+   virtual void       PaintH3BoxRaster();
    virtual void       PaintH3Iso();
    virtual Int_t      PaintInit();
    virtual Int_t      PaintInitH();
@@ -146,8 +143,8 @@ public:
    virtual void       ShowProjection3(Int_t px, Int_t py);
    virtual Int_t      TableInit();
 
-   static const char * GetBestFormat(Double_t v, Double_t e, const char *f);
-   static void       PaintSpecialObjects(const TObject *obj, Option_t *option);
+   static const char *GetBestFormat(Double_t v, Double_t e, const char *f);
+   static void        PaintSpecialObjects(const TObject *obj, Option_t *option);
 
    ClassDef(THistPainter,0)  //Helper class to draw histograms
 };

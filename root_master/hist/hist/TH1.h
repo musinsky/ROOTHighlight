@@ -21,49 +21,25 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef ROOT_TAxis
 #include "TAxis.h"
-#endif
 
-#ifndef ROOT_TAttLine
 #include "TAttLine.h"
-#endif
 
-#ifndef ROOT_TAttFill
 #include "TAttFill.h"
-#endif
 
-#ifndef ROOT_TAttMarker
 #include "TAttMarker.h"
-#endif
 
-#ifndef ROOT_TArrayC
 #include "TArrayC.h"
-#endif
-#ifndef ROOT_TArrayS
 #include "TArrayS.h"
-#endif
-#ifndef ROOT_TArrayI
 #include "TArrayI.h"
-#endif
-#ifndef ROOT_TArrayF
 #include "TArrayF.h"
-#endif
-#ifndef ROOT_TArrayD
 #include "TArrayD.h"
-#endif
 #include "Foption.h"
 
-#ifndef ROOT_TVectorFfwd
 #include "TVectorFfwd.h"
-#endif
-#ifndef ROOT_TVectorDfwd
 #include "TVectorDfwd.h"
-#endif
 
-#ifndef ROOT_TFitResultPtr
 #include "TFitResultPtr.h"
-#endif
 
 #include <float.h>
 
@@ -97,6 +73,15 @@ public:
       kAllAxes = kXaxis | kYaxis | kZaxis
    };
 
+   /// Enumeration specifying the way to treat statoverflow
+   enum  EStatOverflows {
+         kIgnore = 0,   ///< Override global flag ignoring the overflows
+         kConsider = 1, ///< Override global flag considering the overflows
+         kNeutral = 2,  ///< Adapt to the global flag
+   };
+
+   friend class TH1Merger;
+
 protected:
     Int_t         fNcells;          ///< number of bins(1D), cells (2D) +U/Overflows
     TAxis         fXaxis;           ///< X axis descriptor
@@ -123,6 +108,7 @@ protected:
     Double_t     *fIntegral;        ///<!Integral of bins used by GetRandom
     TVirtualHistPainter *fPainter;  ///<!pointer to histogram painter
     EBinErrorOpt  fBinStatErrOpt;   ///< option for bin statistical errors
+    EStatOverflows fStatOverflows;  ///< per object flag to use under/overflows in statistics
     static Int_t  fgBufferSize;     ///<!default buffer size for automatic histograms
     static Bool_t fgAddDirectory;   ///<!flag to add histograms to the directory
     static Bool_t fgStatOverflows;  ///<!flag to use under/overflows in statistics
@@ -149,11 +135,17 @@ protected:
    virtual void     SavePrimitiveHelp(std::ostream &out, const char *hname, Option_t *option = "");
    static Bool_t    RecomputeAxisLimits(TAxis& destAxis, const TAxis& anAxis);
    static Bool_t    SameLimitsAndNBins(const TAxis& axis1, const TAxis& axis2);
+   Bool_t   IsEmpty() const { return fTsumw == 0 && GetEntries() == 0; } //need to use GetEntries() in case of buffer histograms
+
+   inline static Double_t AutoP2GetPower2(Double_t x, Bool_t next = kTRUE);
+   inline static Int_t AutoP2GetBins(Int_t n);
+   virtual Int_t AutoP2FindLimits(Double_t min, Double_t max);
 
    virtual Double_t DoIntegral(Int_t ix1, Int_t ix2, Int_t iy1, Int_t iy2, Int_t iz1, Int_t iz2, Double_t & err,
                                Option_t * opt, Bool_t doerr = kFALSE) const;
 
    virtual void     DoFillN(Int_t ntimes, const Double_t *x, const Double_t *w, Int_t stride=1);
+   Bool_t    GetStatOverflowsBehaviour() const { return EStatOverflows::kNeutral == fStatOverflows ? fgStatOverflows : EStatOverflows::kConsider == fStatOverflows; }
 
    static bool CheckAxisLimits(const TAxis* a1, const TAxis* a2);
    static bool CheckBinLimits(const TAxis* a1, const TAxis* a2);
@@ -164,16 +156,18 @@ protected:
 
 public:
    // TH1 status bits
-   enum {
-      kNoStats     = BIT(9),  ///< don't draw stats box
-      kUserContour = BIT(10), ///< user specified contour levels
-    //kCanRebin    = BIT(11), ///< FIXME DEPRECATED - to be removed, replaced by SetCanExtend / CanExtendAllAxes
-      kLogX        = BIT(15), ///< X-axis in log scale
-      kIsZoomed    = BIT(16), ///< bit set when zooming on Y axis
-      kNoTitle     = BIT(17), ///< don't draw the histogram title
-      kIsAverage   = BIT(18), ///< Bin contents are average (used by Add)
-      kIsNotW      = BIT(19), ///< Histogram is forced to be not weighted even when the histogram is filled with weighted different than 1.
-      kIsHighlight = BIT(20)  ///< bit set if histo is highlight
+   enum EStatusBits {
+      kNoStats     = BIT(9),   ///< don't draw stats box
+      kUserContour = BIT(10),  ///< user specified contour levels
+      // kCanRebin    = BIT(11), ///< FIXME DEPRECATED - to be removed, replaced by SetCanExtend / CanExtendAllAxes
+      kLogX        = BIT(15),  ///< X-axis in log scale
+      kIsZoomed   = BIT(16),   ///< bit set when zooming on Y axis
+      kNoTitle     = BIT(17),  ///< don't draw the histogram title
+      kIsAverage   = BIT(18),  ///< Bin contents are average (used by Add)
+      kIsNotW      = BIT(19),  ///< Histogram is forced to be not weighted even when the histogram is filled with weighted
+                               /// different than 1.
+      kAutoBinPTwo = BIT(20),  ///< Use Power(2)-based algorithm for autobinning
+      kIsHighlight = BIT(21)   ///< bit set if histo is highlight
    };
    // size of statistics data (size of  array used in GetStats()/ PutStats )
    // s[0]  = sumw       s[1]  = sumw2
@@ -318,6 +312,7 @@ public:
            Double_t GetRMSError(Int_t axis=1) const { return GetStdDevError(axis); }
 
    virtual Double_t GetSkewness(Int_t axis=1) const;
+           EStatOverflows GetStatOverflows() const {return fStatOverflows; }; ///< Get the behaviour adopted by the object about the statoverflows. See EStatOverflows for more information.
            TAxis*   GetXaxis()  { return &fXaxis; }
            TAxis*   GetYaxis()  { return &fYaxis; }
            TAxis*   GetZaxis()  { return &fZaxis; }
@@ -330,8 +325,8 @@ public:
    virtual Double_t Interpolate(Double_t x);
    virtual Double_t Interpolate(Double_t x, Double_t y);
    virtual Double_t Interpolate(Double_t x, Double_t y, Double_t z);
-           Bool_t   IsBinOverflow(Int_t bin) const;
-           Bool_t   IsBinUnderflow(Int_t bin) const;
+           Bool_t   IsBinOverflow(Int_t bin, Int_t axis = 0) const;
+           Bool_t   IsBinUnderflow(Int_t bin, Int_t axis = 0) const;
    virtual Bool_t   IsHighlight() const { return TestBit(kIsHighlight); }
    virtual Double_t AndersonDarlingTest(const TH1 *h2, Option_t *option="") const;
    virtual Double_t AndersonDarlingTest(const TH1 *h2, Double_t &advalue) const;
@@ -340,7 +335,7 @@ public:
    virtual void     LabelsInflate(Option_t *axis="X");
    virtual void     LabelsOption(Option_t *option="h", Option_t *axis="X");
    virtual Long64_t Merge(TCollection *list);
-   virtual Bool_t   Multiply(TF1 *h1, Double_t c1=1);
+   virtual Bool_t   Multiply(TF1 *f1, Double_t c1=1);
    virtual Bool_t   Multiply(const TH1 *h1);
    virtual Bool_t   Multiply(const TH1 *h1, const TH1 *h2, Double_t c1=1, Double_t c2=1, Option_t *option=""); // *MENU*
    virtual void     Paint(Option_t *option="");
@@ -408,6 +403,7 @@ public:
    virtual void     SetTitleFont(Style_t font=62, Option_t *axis="X");
    virtual void     SetTitleOffset(Float_t offset=1, Option_t *axis="X");
    virtual void     SetTitleSize(Float_t size=0.02, Option_t *axis="X");
+           void     SetStatOverflows(EStatOverflows statOverflows) {fStatOverflows = statOverflows;}; ///< See GetStatOverflows for more information.
    virtual void     SetTitle(const char *title);  // *MENU*
    virtual void     SetXTitle(const char *title) {fXaxis.SetTitle(title);}
    virtual void     SetYTitle(const char *title) {fYaxis.SetTitle(title);}
@@ -434,7 +430,7 @@ public:
    virtual void     SetCellError(Int_t binx, Int_t biny, Double_t content)
                         { Obsolete("SetCellError", "v6-00", "v6-04"); SetBinError(binx, biny, content); }
 
-   ClassDef(TH1,7)  //1-Dim histogram base class
+   ClassDef(TH1,8)  //1-Dim histogram base class
 
 protected:
    virtual Double_t RetrieveBinContent(Int_t bin) const;
