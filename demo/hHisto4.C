@@ -1,5 +1,5 @@
 // Author: Jan Musinsky
-// 10/10/2015
+// 28/03/2018
 
 #include <TCanvas.h>
 #include <TF1.h>
@@ -50,6 +50,7 @@ void HighlightZoom(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
    if (!c2) {
       c2 = new TCanvas("c2", "c2", 605, 0, 400, 400);
       c2->SetGrid();
+      if (hz) hz->Draw(); // after reopen this canvas
    }
    if (!hz) {
       hz = (TH1 *)h->Clone("hz");
@@ -63,9 +64,6 @@ void HighlightZoom(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
    Int_t zf = hz->GetNbinsX()*0.05; // zoom factor
    hz->GetXaxis()->SetRange(xhb-zf, xhb+zf);
 
-   TVirtualPad *savepad = gPad;
-   c2->cd();
-   hz->Draw();
+   c2->Modified();
    c2->Update();
-   savepad->cd();
 }

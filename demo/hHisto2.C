@@ -1,5 +1,5 @@
 // Author: Jan Musinsky
-// 10/10/2015
+// 28/03/2018
 
 #include <TCanvas.h>
 #include <TH2.h>
@@ -38,21 +38,21 @@ void Highlight2(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
       return;
    }
 
-   if (!c2) {
-      c2 = new TCanvas("c2", "c2", 505, 0, 600, 600);
-      c2->Divide(1, 2);
-   }
-
    TH1 *px = h2->ProjectionX("_px", yhb, yhb);
    TH1 *py = h2->ProjectionY("_py", xhb, xhb);
    px->SetTitle(TString::Format("ProjectionX of biny[%02d]", yhb));
    py->SetTitle(TString::Format("ProjectionY of binx[%02d]", xhb));
 
-   TVirtualPad *savepad = gPad;
-   c2->cd(1);
-   px->Draw();
-   c2->cd(2);
-   py->Draw();
+   if (!c2) {
+      c2 = new TCanvas("c2", "c2", 505, 0, 600, 600);
+      c2->Divide(1, 2);
+      c2->cd(1);
+      px->Draw();
+      c2->cd(2);
+      py->Draw();
+   }
+
+   c2->GetPad(1)->Modified();
+   c2->GetPad(2)->Modified();
    c2->Update();
-   savepad->cd();
 }
