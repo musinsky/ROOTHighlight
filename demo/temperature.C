@@ -1,5 +1,5 @@
 // Author: Jan Musinsky
-// 30/10/2015
+// 29/03/2018
 
 #include <TTree.h>
 #include <TLeaf.h>
@@ -69,11 +69,11 @@ void HighlightTemp(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
    if (obj == hYear)  HighlightYear(xhb);
    if (obj == hMonth) HighlightMonth(xhb);
    if (obj == hDay)   HighlightDay(xhb);
+   c1->Update();
 }
 
 void HighlightYear(Int_t xhb)
 {
-   Bool_t enableHighlight = kFALSE;
    if (!hMonth) {
       hMonth = new TProfile("hMonth", "; month; temp, #circC", rMonth[0], rMonth[1], rMonth[2]);
       hMonth->SetMinimum(rTemp[1]);
@@ -82,25 +82,22 @@ void HighlightYear(Int_t xhb)
       hMonth->GetYaxis()->SetNdivisions(410);
       hMonth->SetFillColor(kGray+1);
       hMonth->SetMarkerStyle(7);
-      enableHighlight = kTRUE;
+      c1->cd(2);
+      hMonth->Draw("HIST, CP");
+      gPad->Update();
+      hMonth->SetHighlight();
    }
 
    year = xhb - 1 + rYear[1];
    tree->Draw("T:MONTH>>hMonth", TString::Format("YEAR==%d", year), "goff");
    hMonth->SetTitle(TString::Format("temperature by month (year = %d)", year));
+   c1->GetPad(2)->Modified();
 
-   c1->cd(2);
-   hMonth->Draw("HIST, CP");
-   if (enableHighlight) { // enable highlight mode (only once)
-      gPad->Update();
-      hMonth->SetHighlight();
-   }
    HighlightMonth(customhb); // custom call HighlightMonth
 }
 
 void HighlightMonth(Int_t xhb)
 {
-   Bool_t enableHighlight = kFALSE;
    if (!hDay) {
       hDay = new TProfile("hDay", "; day; temp, #circC", rDay[0], rDay[1], rDay[2]);
       hDay->SetMinimum(rTemp[1]);
@@ -108,19 +105,17 @@ void HighlightMonth(Int_t xhb)
       hDay->GetYaxis()->SetNdivisions(410);
       hDay->SetFillColor(kGray);
       hDay->SetMarkerStyle(7);
-      enableHighlight = kTRUE;
+      c1->cd(3);
+      hDay->Draw("HIST, CP");
+      gPad->Update();
+      hDay->SetHighlight();
    }
 
    if (xhb != customhb) month = xhb;
    tree->Draw("T:DAY>>hDay", TString::Format("MONTH==%d && YEAR==%d", month, year), "goff");
    hDay->SetTitle(TString::Format("temperature by day (month = %02d, year = %d)", month, year));
+   c1->GetPad(3)->Modified();
 
-   c1->cd(3);
-   hDay->Draw("HIST, CP");
-   if (enableHighlight) { // enable highlight mode (only once)
-      gPad->Update();
-      hDay->SetHighlight();
-   }
    HighlightDay(customhb); // custom call HighlightDay
 }
 
@@ -129,15 +124,14 @@ void HighlightDay(Int_t xhb)
    if (!info) {
       info = new TLatex();
       info->SetTextSizePixels(25);
+      c1->cd(3);
+      info->Draw();
+      gPad->Update();
    }
 
    if (xhb != customhb) day = xhb;
    TString temp = TString::Format(" %5.1f #circC", hDay->GetBinContent(day));
    if (hDay->GetBinEntries(day) == 0) temp = " none";
    info->SetText(12.0, hDay->GetMinimum()*0.8, TString::Format("%4d-%02d-%02d %s", year, month, day, temp.Data()));
-
-   c1->cd(3);
-   info->Draw();
-   gPad->Update();
-   c1->cd();
+   c1->GetPad(3)->Modified();
 }
