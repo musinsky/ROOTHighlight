@@ -629,10 +629,6 @@ Int_t TGraphPainter::DistancetoPrimitiveHelper(TGraph *theGraph, Int_t px, Int_t
    }
 
    Int_t hpoint = -1;
-   const Int_t kHighlightRange = 50; // maybe as fgHighlightRange and Set/Get
-   static Int_t distanceOld = kHighlightRange;
-   if (gHighlightPoint == -1) distanceOld = kHighlightRange; // reset
-
    for (i=0;i<theNpoints;i++) {
       pxp = gPad->XtoAbsPixel(gPad->XtoPad(theX[i]));
       pyp = gPad->YtoAbsPixel(gPad->YtoPad(theY[i]));
@@ -643,23 +639,8 @@ Int_t TGraphPainter::DistancetoPrimitiveHelper(TGraph *theGraph, Int_t px, Int_t
       }
    }
 
-   // check for highlight point
-   if (theGraph->IsHighlight()) { // only if highlight is enable
-      if ((distance < kHighlightRange) && (distance < distanceOld)) { // closest point
-         if ((gHighlightPoint != hpoint) || (gHighlightGraph != theGraph)) { // was changed
-            //Info("DistancetoPrimitiveHelper", "graph: %p\tpoint: %d", (void *)theGraph, hpoint);
-            gHighlightPoint = hpoint;
-            gHighlightGraph = theGraph;
-            // paint highlight point as marker (recursive calls PaintHighlightPoint)
-            gPad->Modified(kTRUE);
-            gPad->Update();
-            // emit Highlighted() signal
-            if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, theGraph, gHighlightPoint, -1);
-         }
-      }
-      if (gHighlightGraph == theGraph) distanceOld = distance;
-   }
-
+   if (theGraph->IsHighlight()) // only if highlight is enable
+      HighlightPoint(theGraph, hpoint, distance);
    if (distance < kMaxDiff) return distance;
 
    for (i=0;i<theNpoints-1;i++) {
@@ -1032,6 +1013,35 @@ void TGraphPainter::SetHighlight(TGraph *theGraph)
    if (gHighlightMarker) { gHighlightMarker->Delete(); gHighlightMarker = 0; }
    // emit Highlighted() signal (user can check on disabled)
    if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, theGraph, gHighlightPoint, -1);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// Check on highlight point
+
+void TGraphPainter::HighlightPoint(TGraph *theGraph, Int_t hpoint, Int_t distance)
+{
+   // call from DistancetoPrimitiveHelper (only if highlight is enable)
+
+   const Int_t kHighlightRange = 50; // maybe as fgHighlightRange and Set/Get
+   static Int_t distanceOld = kHighlightRange;
+   if (gHighlightPoint == -1) distanceOld = kHighlightRange; // reset
+
+   if ((distance < kHighlightRange) && (distance < distanceOld)) { // closest point
+      if ((gHighlightPoint != hpoint) || (gHighlightGraph != theGraph)) { // was changed
+         //   Info("HighlightPoint", "graph: %p\tpoint: %d", (void *)theGraph, hpoint);
+         gHighlightPoint = hpoint;
+         gHighlightGraph = theGraph;
+
+         // paint highlight point as marker (recursive calls PaintHighlightPoint)
+         gPad->Modified(kTRUE);
+         gPad->Update();
+
+         // emit Highlighted() signal
+         if (gPad->GetCanvas()) gPad->GetCanvas()->Highlighted(gPad, theGraph, gHighlightPoint, -1);
+      }
+   }
+   if (gHighlightGraph == theGraph) distanceOld = distance;
 }
 
 
