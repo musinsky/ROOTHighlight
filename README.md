@@ -37,12 +37,18 @@ void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 - `x` is highlighted x bin for 1D histogram or highlighted x-th point for graph
 - `y` is highlighted y bin for 2D histogram (for 1D histogram or graph not in use)
 
-Make a connection from any **`TCanvas`** object to a user `UserFunction()` slot. Signal and slot string
-must have a form `Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)`
+Make a connection from any **`TCanvas`** object to a user `UserFunction()` slot (signal and slot string
+must have a form "`(TVirtualPad*,TObject*,Int_t,Int_t)`"):
 ``` {.cpp}
 TQObject::Connect("TCanvas", "Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-                  0, 0,     "UserFunction(TVirtualPad*,TObject*,Int_t,Int_t)");
+                      0, 0, "UserFunction(TVirtualPad*,TObject*,Int_t,Int_t)");
 ```
+or use non-static "simplified" function **`TCanvas`**`::HighlightConnect(const char *slot)`:
+``` {.cpp}
+c1->HighlightConnect("UserFunction(TVirtualPad*,TObject*,Int_t,Int_t)");
+```
+
+
 
 ``` {.cpp}
 root [] .x $ROOTSYS/tutorials/hsimple.C
