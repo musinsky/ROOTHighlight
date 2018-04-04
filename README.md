@@ -48,14 +48,14 @@ or use non-static "simplified" function **`TCanvas`**`::HighlightConnect(const c
 c1->HighlightConnect("UserFunction(TVirtualPad*,TObject*,Int_t,Int_t)");
 ```
 
-
+---
 
 ``` {.cpp}
 root [] .x $ROOTSYS/tutorials/hsimple.C
 root [] hpx->SetHighlight(kTRUE)
 root [] .x hlprint.C
 ```
-
+file `hlprint.C`
 ``` {.cpp}
 #include <TCanvas.h>
 #include <TH1.h>
@@ -64,7 +64,7 @@ void PrintInfo(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 {
    TH1F *h = (TH1F *)obj;
 
-   if (!h->IsHighlight()) // after disabled
+   if (!h->IsHighlight()) // after highlight disabled
       h->SetTitle("highlight disable");
    else
       h->SetTitle(TString::Format("bin[%03d] (%5.2f) content %g", x,
@@ -74,7 +74,10 @@ void PrintInfo(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 
 void hlprint()
 {
-   TQObject::Connect("TCanvas", "Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-                     0, 0, "PrintInfo(TVirtualPad*,TObject*,Int_t,Int_t)");
+   // TQObject::Connect("TCanvas", "Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
+   //                   0, 0, "PrintInfo(TVirtualPad*,TObject*,Int_t,Int_t)");
+
+   // or simplified
+   gPad->GetCanvas()->HighlightConnect("PrintInfo(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 ```
