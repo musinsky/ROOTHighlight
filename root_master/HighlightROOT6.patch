@@ -202,10 +202,10 @@ index eb37b15c..f5154674 100644
  /// Set the maximum of the graph.
  
 diff --git a/hist/hist/src/TH1.cxx b/hist/hist/src/TH1.cxx
-index d8db3dab..79c2d901 100644
+index 73da4f6d..da045d5c 100644
 --- a/hist/hist/src/TH1.cxx
 +++ b/hist/hist/src/TH1.cxx
-@@ -4207,6 +4207,26 @@ Double_t TH1::GetEffectiveEntries() const
+@@ -4217,6 +4217,26 @@ Double_t TH1::GetEffectiveEntries() const
     return (s[1] ? s[0]*s[0]/s[1] : TMath::Abs(s[0]) );
  }
  
