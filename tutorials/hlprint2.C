@@ -1,3 +1,4 @@
+#include <TROOT.h>
 #include <TCanvas.h>
 #include <TH1.h>
 
@@ -12,11 +13,9 @@ void PrintInfo(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
    pad->Update();
 }
 
-void hlprint()
+void hlprint2()
 {
-   if (!gPad) return;
-   // TQObject::Connect("TCanvas", "Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
-   //                   0, 0, "PrintInfo(TVirtualPad*,TObject*,Int_t,Int_t)");
-   // or simplified
+   if (gROOT->Macro("$ROOTSYS/tutorials/hsimple.C") == 0) return;
+   ((TH1F *)gPad->FindObject("hpx"))->SetHighlight(kTRUE);
    gPad->GetCanvas()->HighlightConnect("PrintInfo(TVirtualPad*,TObject*,Int_t,Int_t)");
 }

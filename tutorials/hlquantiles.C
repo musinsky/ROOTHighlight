@@ -1,7 +1,7 @@
 TList *lq = 0;
 TGraph *gr = 0;
 
-void hquantiles() {
+void hlquantiles() {
    // demo for quantiles
    // Authors: Rene Brun, Eddy Offermann
 
@@ -91,7 +91,7 @@ void hquantiles() {
    legend->Draw();
 }
 
-void HighlightQuantile(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t /*y*/)
+void HighlightQuantile(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t y)
 {
    // show the evolution of all quantiles in the bottom pad
    if (obj != gr) return;
@@ -100,7 +100,6 @@ void HighlightQuantile(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t /*y*/)
    TVirtualPad *savepad = gPad;
    pad->GetCanvas()->cd(3);
    lq->At(ihp)->Draw("alp");
-   gPad->Modified();
    gPad->Update();
    savepad->cd();
 }

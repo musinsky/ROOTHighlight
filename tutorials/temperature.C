@@ -1,5 +1,5 @@
 // Author: Jan Musinsky
-// 29/03/2018
+// 09/03/2018
 
 #include <TTree.h>
 #include <TLeaf.h>
@@ -28,9 +28,10 @@ void HighlightDay(Int_t xhb);
 
 void temperature()
 {
-   // read file
+   // read file (data from Global Historical Climatology Network)
    tree = new TTree("tree", "GHCN-Daily");
-   tree->ReadFile("temperature_Prague.data"); // YEAR/I:MONTH/I:DAY/I:T/F
+   // data format: YEAR/I:MONTH/I:DAY/I:T/F
+   if (tree->ReadFile("temperature_Prague.dat") == 0) return;
 
    // range of years
    tree->GetEntry(0);

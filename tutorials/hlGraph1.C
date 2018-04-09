@@ -1,18 +1,17 @@
 // Author: Jan Musinsky
-// 10/10/2015
+// 30/03/2018
 
 #include <TCanvas.h>
 #include <TH1.h>
 #include <TF1.h>
 #include <TGraph.h>
-#include <TList.h>
 #include <TText.h>
 
 TList *l = 0;
 
 void HighlightHisto(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t y);
 
-void hGraph1()
+void hlGraph1()
 {
    TCanvas *ch = new TCanvas("ch", "ch", 0, 0, 700, 500);
    const Int_t n = 500;
@@ -47,15 +46,17 @@ void hGraph1()
    ch->HighlightConnect("HighlightHisto(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 
-void HighlightHisto(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t /*y*/)
+void HighlightHisto(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t y)
 {
-   if (ihp == -1) return; // after disabled
    TVirtualPad *ph = (TVirtualPad *)pad->FindObject("ph");
    if (!ph) return;
 
-   TVirtualPad *savepad = gPad;
+   if (ihp == -1) { // after highlight disabled
+      ph->Clear();
+      return;
+   }
+
    ph->cd();
    l->At(ihp)->Draw();
    gPad->Update();
-   savepad->cd();
 }

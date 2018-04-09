@@ -1,5 +1,5 @@
 // Author: Jan Musinsky
-// 10/10/2015
+// 30/03/2018
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -15,7 +15,7 @@ TNtuple *ntuple = 0;
 
 void HighlightBinId(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t y);
 
-void hGraph2()
+void hlGraph2()
 {
    TFile *file = TFile::Open("$ROOTSYS/tutorials/hsimple.root");
    if (!file || file->IsZombie()) {
@@ -48,7 +48,7 @@ void hGraph2()
    ntuple->Draw("px:py:pz:i", cut, "goff");
 }
 
-void HighlightBinId(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t /*y*/)
+void HighlightBinId(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t y)
 {
    TCanvas *c2 = (TCanvas *)gROOT->GetListOfCanvases()->FindObject("c2");
    if (!c2) return;
@@ -88,7 +88,7 @@ void HighlightBinId(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t /*y*/)
    th->SetText(histo->GetXaxis()->GetXmax()*0.75, histo->GetMaximum()*0.5,
                TString::Format("id = %d", (Int_t)i));
 
-   if (ihp == -1) { // after disabled
+   if (ihp == -1) { // after highlight disabled
       delete bh;
       delete th;
    }

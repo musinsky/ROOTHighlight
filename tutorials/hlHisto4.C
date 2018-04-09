@@ -1,5 +1,5 @@
 // Author: Jan Musinsky
-// 28/03/2018
+// 30/03/2018
 
 #include <TCanvas.h>
 #include <TF1.h>
@@ -10,7 +10,7 @@
 
 void HighlightZoom(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb);
 
-void hHisto4()
+void hlHisto4()
 {
    TCanvas *c1 = new TCanvas("c1", "", 0, 0, 600, 400);
    TF1 *f1 = new TF1("f1", "x*gaus(0) + [3]*abs(sin(x)/x)", -50.0, 50.0);
@@ -36,12 +36,12 @@ void hHisto4()
 
 void HighlightZoom(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
 {
-   TH1 *h = dynamic_cast<TH1 *>(obj);
+   TH1F *h = (TH1F *)obj;
    if(!h) return;
 
    TCanvas *c2 = (TCanvas *)gROOT->GetListOfCanvases()->FindObject("c2");
    static TH1 *hz = 0;
-   if (!h->IsHighlight()) { // after disabled
+   if (!h->IsHighlight()) { // after highlight disabled
       if (c2) delete c2;
       if (hz) { delete hz; hz = 0; }
       return;

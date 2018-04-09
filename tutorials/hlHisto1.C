@@ -1,5 +1,5 @@
 // Author: Jan Musinsky
-// 10/10/2015
+// 30/03/2018
 
 #include <TCanvas.h>
 #include <TH2.h>
@@ -8,7 +8,7 @@
 
 void HighlightTitle(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb);
 
-void hHisto1()
+void hlHisto1()
 {
    TCanvas *c1 = new TCanvas();
    TH2F *h2 = new TH2F("h2", "", 50, -5.0, 5.0, 50, -5.0, 5.0);
@@ -28,9 +28,9 @@ void hHisto1()
 
 void HighlightTitle(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
 {
-   TH2 *h2 = dynamic_cast<TH2 *>(obj);
+   TH2F *h2 = (TH2F *)obj;
    if (!h2) return;
-   if (!h2->IsHighlight()) { // after disabled
+   if (!h2->IsHighlight()) { // after highlight disabled
       h2->SetTitle("");
       return;
    }

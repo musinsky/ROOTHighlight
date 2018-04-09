@@ -1,5 +1,5 @@
 // Author: Jan Musinsky
-// 10/10/2015
+// 30/03/2018
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -15,7 +15,7 @@ TList *list2 = 0;
 void InitGraphs(TNtuple *nt, TH1F *histo);
 void Highlight3(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb);
 
-void hHisto3()
+void hlHisto3()
 {
    TFile *file = TFile::Open("$ROOTSYS/tutorials/hsimple.root");
    if (!file || file->IsZombie()) {
@@ -113,7 +113,7 @@ void InitGraphs(TNtuple *nt, TH1F *histo)
 
 void Highlight3(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
 {
-   TH1 *histo = dynamic_cast<TH1 *>(obj);
+   TH1F *histo = (TH1F *)obj;
    if(!histo) return;
 
    TCanvas *c2 = (TCanvas *)gROOT->GetListOfCanvases()->FindObject("c2");
@@ -132,7 +132,7 @@ void Highlight3(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
    c2->cd();
    gcommon->Draw("AP");
    //gcommon->SetTitle(TString::Format("%d / %d", g->GetN(), gcommon->GetN()));
-   if (histo->IsHighlight()) // don't draw g after disabled (but need once redraw gcommon)
+   if (histo->IsHighlight()) // don't draw g after highlight disabled
       if (g->GetN() > 0) g->Draw("P");
    c2->Update();
    savepad->cd();

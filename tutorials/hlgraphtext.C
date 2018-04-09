@@ -2,7 +2,7 @@
 // The text is drawn in a TExec function, therefore if the text is
 // moved interactively, it will be automatically updated.
 // Author: Olivier Couet
-void hgraphtext() {
+void hlgraphtext() {
    TCanvas *c = new TCanvas("c","A Simple Graph Example with Text",700,500);
    c->SetGrid();
 
@@ -30,7 +30,7 @@ void hgraphtext() {
    c->HighlightConnect("drawtext(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
 
-void drawtext(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t /*y*/)
+void drawtext(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t y)
 {
    TLatex *l = (TLatex *)pad->FindObject("TLatex");
    if (!l) {
@@ -42,12 +42,12 @@ void drawtext(TVirtualPad *pad, TObject *obj, Int_t ihp, Int_t /*y*/)
       l->Draw();
    }
 
-   Double_t x,y;
+   Double_t xx,yy;
    TGraph *g = (TGraph *)obj;
-   g->GetPoint(ihp,x,y);
-   l->SetText(x,y+0.2,Form("%4.2f",y));
+   g->GetPoint(ihp,xx,yy);
+   l->SetText(xx,yy+0.2,Form("%4.2f",yy));
 
-   if (ihp == -1) { // after disabled
+   if (ihp == -1) { // after highlight disabled
       delete l;
    }
    pad->Modified();
