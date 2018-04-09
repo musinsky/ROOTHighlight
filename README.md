@@ -9,7 +9,7 @@ signal **`TCanvas`**`::Highlighted()` which allows the user to react and call
 their own function. For a better understanding please see
 this [demo video](https://youtu.be/_kWh53Q87Ew).
 
-![Highlight mode for histogram](https://i.imgur.com/SGSpnxU.gif)
+![Highlight mode for histogram](https://raw.githubusercontent.com/musinsky/ROOTHighlight/master/hlsimple.gif)
 
 Highlight mode is switched on/off by function **`TH1`**`::SetHighlight()` for histogram
 or **`TGraph`**`::SetHighlight()` for graph. **`TH1`**`::IsHighlight()`
@@ -63,7 +63,6 @@ file `hlprint.C`
 void PrintInfo(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 {
    TH1F *h = (TH1F *)obj;
-
    if (!h->IsHighlight()) // after highlight disabled
       h->SetTitle("highlight disable");
    else
@@ -74,10 +73,11 @@ void PrintInfo(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 
 void hlprint()
 {
+   if (!gPad) return;
    // TQObject::Connect("TCanvas", "Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
    //                   0, 0, "PrintInfo(TVirtualPad*,TObject*,Int_t,Int_t)");
-
    // or simplified
    gPad->GetCanvas()->HighlightConnect("PrintInfo(TVirtualPad*,TObject*,Int_t,Int_t)");
 }
+
 ```
