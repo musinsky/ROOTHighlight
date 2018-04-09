@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/musinsky/ROOTHighlight/master/tmp/hlHisto3_half.gif">
+</p>
+
 Function `SetHighlight()` is implemented for **`TH1`** and **`TGraph`** class.
 This function switches on/off highlight mode, by default it is disabled.
 
