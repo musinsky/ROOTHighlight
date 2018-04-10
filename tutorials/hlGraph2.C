@@ -1,5 +1,11 @@
-// Author: Jan Musinsky
-// 30/03/2018
+/// \file
+/// \ingroup tutorial_graphs
+/// This tutorial shows highlight mode for graph 2
+///
+/// \macro_code
+///
+/// \date March 2018
+/// \author Jan Musinsky
 
 #include <TROOT.h>
 #include <TFile.h>

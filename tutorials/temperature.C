@@ -1,5 +1,11 @@
-// Author: Jan Musinsky
-// 09/03/2018
+/// \file
+/// \ingroup tutorial_tree
+/// Demo for highlight mode
+///
+/// \macro_code
+///
+/// \date March 2018
+/// \author Jan Musinsky
 
 #include <TTree.h>
 #include <TLeaf.h>

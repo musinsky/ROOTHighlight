@@ -1,5 +1,11 @@
-// Author: Jan Musinsky
-// 30/03/2018
+/// \file
+/// \ingroup tutorial_graphs
+/// This tutorial shows highlight mode for graph 1
+///
+/// \macro_code
+///
+/// \date March 2018
+/// \author Jan Musinsky
 
 #include <TCanvas.h>
 #include <TH1.h>

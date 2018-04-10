@@ -1,10 +1,16 @@
+/// \file
+/// \ingroup tutorial_math
+/// Demo for quantiles (with highlight mode)
+///
+/// \macro_image
+/// \macro_code
+///
+/// \authors Rene Brun, Eddy Offermann
+
 TList *lq = 0;
 TGraph *gr = 0;
 
 void hlquantiles() {
-   // demo for quantiles
-   // Authors: Rene Brun, Eddy Offermann
-
    const Int_t nq = 100;
    const Int_t nshots = 10;
    Double_t xq[nq];  // position where to compute the quantiles in [0,1]

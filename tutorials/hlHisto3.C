@@ -1,5 +1,11 @@
-// Author: Jan Musinsky
-// 30/03/2018
+/// \file
+/// \ingroup tutorial_hist
+/// This tutorial shows highlight mode for histogram 3
+///
+/// \macro_code
+///
+/// \date March 2018
+/// \author Jan Musinsky
 
 #include <TROOT.h>
 #include <TFile.h>
