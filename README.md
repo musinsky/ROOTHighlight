@@ -13,7 +13,7 @@ signal **`TCanvas`**`::Highlighted()` which allows the user to react and call
 their own function. For a better understanding please see
 this [demo video](https://youtu.be/_kWh53Q87Ew).
 
-![Highlight mode for histogram](https://raw.githubusercontent.com/musinsky/ROOTHighlight/master/hlsimple.gif)
+![Highlight mode for histogram](https://raw.githubusercontent.com/musinsky/ROOTHighlight/master/tmp/hlsimple.gif)
 
 Highlight mode is switched on/off by function **`TH1`**`::SetHighlight()` for histogram
 or **`TGraph`**`::SetHighlight()` for graph. **`TH1`**`::IsHighlight()`
