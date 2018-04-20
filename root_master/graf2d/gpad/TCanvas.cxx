@@ -1531,10 +1531,10 @@ void TCanvas::Picked(TPad *pad, TObject *obj, Int_t event)
 ////////////////////////////////////////////////////////////////////////////////
 /// Emit Highlighted() signal.
 ///
-/// pad is pointer to pad with highlighted histogram or graph
-/// obj is pointer to highlighted histogram or graph
-/// x   is highlighted x bin for 1D histogram or highlighted x-th point for graph
-/// y   is highlighted y bin for 2D histogram (for 1D histogram or graph not in use)
+///  - pad is pointer to pad with highlighted histogram or graph
+///  - obj is pointer to highlighted histogram or graph
+///  - x is highlighted x bin for 1D histogram or highlighted x-th point for graph
+///  - y is highlighted y bin for 2D histogram (for 1D histogram or graph not in use)
 
 void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 {

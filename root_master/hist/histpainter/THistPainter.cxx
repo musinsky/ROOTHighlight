@@ -2967,10 +2967,12 @@ to show outlines ('w' for "wireframe").
 
 \since **ROOT version 6.13/04**
 
-Highlight mode is implemented for `TH1` (and equivalent for `TGraph`) class.
-When Highlight mode is on, mouse movement over the bin will be represented
-graphically. Color of the highlighted bin (presented by box object) will
-change. Moreover, any highlight (change of bin) emits signal
+\image html hlHisto3.gif "Highlight mode"
+
+Highlight mode is implemented for `TH1` (and for `TGraph`) class. When
+highlight mode is on, mouse movement over the bin will be represented
+graphically. Bin will be highlighted as "bin box" (presented by box
+object). Moreover, any highlight (change of bin) emits signal
 `TCanvas::Highlighted()` which allows the user to react and call their own
 function. For a better understanding please see also the tutorials
 `$ROOTSYS/tutorials/hist/hlHisto*.C` files.
@@ -2989,14 +2991,14 @@ whether the highlight mode enabled or disabled, default it is disabled.
 #### <a name="HP30a"></a> Highlight mode and user function
 
 The user can use (connect) `TCanvas::Highlighted()` signal, which is always
-emitted if there is a highlight (change) bin and call user function via
-signal and slot communication mechanism. `TCanvas::Highlighted()`
-is equivalent `TCanvas::Picked()`
+emitted if there is a highlight bin and call user function via signal
+and slot communication mechanism. `TCanvas::Highlighted()` is similar
+`TCanvas::Picked()`
 
 -  when selected object (histogram as a whole) is different from previous
 then emit `Picked()` signal
--  when selected bin from histogram is different from previous then
-emit `Highlighted()` signal
+-  when selected (highlighted) bin from histogram is different from previous
+then emit `Highlighted()` signal
 
 Any user function (or functions) has to be defined
 `UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)`.
@@ -3010,12 +3012,14 @@ function are taken from
 -  `x` is highlighted x bin for 1D histogram
 -  `y` is highlighted y bin for 2D histogram (for 1D histogram not in use)
 
-Example how to create a connection from any `TCanvas` object to a user `UserFunction()` slot
+Example how to create a connection from any `TCanvas` object to a user
+`UserFunction()` slot (see also `TQObject::Connect()` for additional info)
 
     TQObject::Connect("TCanvas", "Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
                           0, 0, "UserFunction(TVirtualPad*,TObject*,Int_t,Int_t)");
 
-or use non-static "simplified" function `TCanvas::HighlightConnect(const char *slot)`
+or use non-static "simplified" function
+`TCanvas::HighlightConnect(const char *slot)`
 
     c1->HighlightConnect("UserFunction(TVirtualPad*,TObject*,Int_t,Int_t)");
 

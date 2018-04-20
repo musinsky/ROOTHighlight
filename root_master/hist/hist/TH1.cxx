@@ -462,6 +462,13 @@ When using the options 2 or 3 above, the labels are automatically
  TAttLine, TAttFill, and TAttMarker.
  See the member functions of these classes for the list of options.
 
+#### Highlight mode
+
+ When highlight mode is on, mouse movement over the bin will be represented
+ graphically. Moreover, any highlight (change of bin) emits signal which
+ allows the user to react and call their own function. See `THistPainter`
+ for more details.
+
 #### Giving titles to the X, Y and Z axis
 
 ~~~ {.cpp}
@@ -4218,8 +4225,8 @@ Double_t TH1::GetEffectiveEntries() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Set highlight (enable/disable) mode for the histogram
-/// by default highlight mode is disable
+/// Set highlight (enable/disable) mode for the histogram, by default
+/// highlight mode is disable. Invokes directly `THistPainter::SetHighlight()`.
 
 void TH1::SetHighlight(Bool_t set)
 {
