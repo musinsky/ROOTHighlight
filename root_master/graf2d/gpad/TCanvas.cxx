@@ -1549,7 +1549,8 @@ void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// This is helper for function TCanvas::Connect for specific slot.
+/// This is "simplification" for function TCanvas::Connect with Highlighted
+/// signal for specific slot.
 ///
 /// Slot has to be defined "UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)"
 /// all parameters of UserFunction are taken from TCanvas::Highlighted
