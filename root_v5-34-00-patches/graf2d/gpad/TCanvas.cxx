@@ -1522,6 +1522,15 @@ void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 }
 
 //______________________________________________________________________________
+void TCanvas::HighlightConnect(const char *slot)
+{
+   // This is "simplification" for function TCanvas::Connect with Highlighted
+   // signal for specific slot.
+
+   Connect("Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)", 0, 0, slot);
+}
+
+//______________________________________________________________________________
 void TCanvas::Selected(TVirtualPad *pad, TObject *obj, Int_t event)
 {
    // Emit Selected() signal.

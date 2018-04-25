@@ -42,6 +42,7 @@ public:
    virtual void   ExecuteEventHelper(TGraph *theGraph, Int_t event, Int_t px, Int_t py);
    virtual char  *GetObjectInfoHelper(TGraph *theGraph, Int_t px, Int_t py) const;
    virtual Int_t  GetHighlightPoint(TGraph *theGraph) const;
+   virtual void   HighlightPoint(TGraph *theGraph, Int_t hpoint, Int_t distance);
    virtual void   PaintHighlightPoint(TGraph *theGraph, Option_t *option);
    void           PaintHelper(TGraph *theGraph, Option_t *option);
    virtual void   PaintGraph(TGraph *theGraph, Int_t npoints, const Double_t *x, const Double_t *y, Option_t *chopt);

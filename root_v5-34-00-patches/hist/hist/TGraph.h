@@ -81,7 +81,7 @@ public:
    enum {
       kClipFrame     = BIT(10),  // clip to the frame boundary
       kNotEditable   = BIT(18),  // bit set if graph is non editable
-      kIsHighlight   = BIT(19)   // bit set if graph is highlight
+      kIsHighlight   = BIT(19)   // bit set if graph is highlight (different than in ROOT6)
    };
 
    TGraph();

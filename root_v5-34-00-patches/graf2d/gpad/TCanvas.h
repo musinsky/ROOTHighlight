@@ -188,6 +188,7 @@ public:
                      {wtopx=GetWindowTopX(); wtopy=fWindowTopY; ww=fWindowWidth; wh=fWindowHeight;}
    virtual void      HandleInput(EEventType button, Int_t x, Int_t y);
    Bool_t            HasMenuBar() const { return TestBit(kMenuBar); }
+   virtual void      HighlightConnect(const char *slot);
    void              Iconify() { fCanvasImp->Iconify(); }
    Bool_t            IsBatch() const { return fBatch; }
    Bool_t            IsFolder() const;

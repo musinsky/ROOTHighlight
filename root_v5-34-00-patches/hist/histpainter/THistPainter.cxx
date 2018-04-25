@@ -3593,7 +3593,7 @@ char *THistPainter::GetObjectInfo(Int_t px, Int_t py) const
 //______________________________________________________________________________
 void THistPainter::SetHighlight()
 {
-   // Set highlight (enable/disble) mode for fH
+   // Set highlight (enable/disable) mode for fH
 
    if (fH->IsHighlight()) return;
 
