@@ -19,20 +19,20 @@ index dc8ced03..337d13c3 100644
     virtual void      Selected(TVirtualPad *pad, TObject *obj, Int_t event);            // *SIGNAL*
     virtual void      Cleared(TVirtualPad *pad);                                        // *SIGNAL*
 diff --git a/graf2d/gpad/src/TCanvas.cxx b/graf2d/gpad/src/TCanvas.cxx
-index e09987a2..5f1e4d9c 100644
+index e09987a2..599a5b4a 100644
 --- a/graf2d/gpad/src/TCanvas.cxx
 +++ b/graf2d/gpad/src/TCanvas.cxx
-@@ -1528,6 +1528,37 @@ void TCanvas::Picked(TPad *pad, TObject *obj, Int_t event)
+@@ -1528,6 +1528,38 @@ void TCanvas::Picked(TPad *pad, TObject *obj, Int_t event)
     Emit("Picked(TPad*,TObject*,Int_t)", args);
  }
  
 +////////////////////////////////////////////////////////////////////////////////
 +/// Emit Highlighted() signal.
 +///
-+/// pad is pointer to pad with highlighted histogram or graph
-+/// obj is pointer to highlighted histogram or graph
-+/// x   is highlighted x bin for 1D histogram or highlighted x-th point for graph
-+/// y   is highlighted y bin for 2D histogram (for 1D histogram or graph not in use)
++///  - pad is pointer to pad with highlighted histogram or graph
++///  - obj is pointer to highlighted histogram or graph
++///  - x is highlighted x bin for 1D histogram or highlighted x-th point for graph
++///  - y is highlighted y bin for 2D histogram (for 1D histogram or graph not in use)
 +
 +void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
 +{
@@ -47,7 +47,8 @@ index e09987a2..5f1e4d9c 100644
 +}
 +
 +////////////////////////////////////////////////////////////////////////////////
-+/// This is helper for function TCanvas::Connect for specific slot.
++/// This is "simplification" for function TCanvas::Connect with Highlighted
++/// signal for specific slot.
 +///
 +/// Slot has to be defined "UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)"
 +/// all parameters of UserFunction are taken from TCanvas::Highlighted
@@ -177,7 +178,7 @@ index 62134605..a6073366 100644
     virtual void       SetStack(TList *stack) = 0;
     virtual Int_t      MakeCuts(char *cutsopt) = 0;
 diff --git a/hist/hist/src/TGraph.cxx b/hist/hist/src/TGraph.cxx
-index 9edfd877..ae361500 100644
+index 9edfd877..52d81261 100644
 --- a/hist/hist/src/TGraph.cxx
 +++ b/hist/hist/src/TGraph.cxx
 @@ -2160,6 +2160,20 @@ void TGraph::SetEditable(Bool_t editable)
@@ -185,8 +186,8 @@ index 9edfd877..ae361500 100644
  }
  
 +////////////////////////////////////////////////////////////////////////////////
-+/// Set highlight (enable/disble) mode for the graph
-+/// by default highlight mode is disable
++/// Set highlight (enable/disble) mode for the graph, by default highlight
++/// mode is disable. Invokes directly `TGraphPainter::SetHighlight()`.
 +
 +void TGraph::SetHighlight(Bool_t set)
 +{
@@ -202,16 +203,30 @@ index 9edfd877..ae361500 100644
  /// Set the maximum of the graph.
  
 diff --git a/hist/hist/src/TH1.cxx b/hist/hist/src/TH1.cxx
-index fd41c496..d12a61f0 100644
+index fd41c496..99f1910a 100644
 --- a/hist/hist/src/TH1.cxx
 +++ b/hist/hist/src/TH1.cxx
-@@ -4217,6 +4217,26 @@ Double_t TH1::GetEffectiveEntries() const
+@@ -462,6 +462,13 @@ When using the options 2 or 3 above, the labels are automatically
+  TAttLine, TAttFill, and TAttMarker.
+  See the member functions of these classes for the list of options.
+ 
++#### Highlight mode
++
++ When highlight mode is on, mouse movement over the bin will be represented
++ graphically. Moreover, any highlight (change of bin) emits signal which
++ allows the user to react and call their own function. See `THistPainter`
++ for more details.
++
+ #### Giving titles to the X, Y and Z axis
+ 
+ ~~~ {.cpp}
+@@ -4217,6 +4224,26 @@ Double_t TH1::GetEffectiveEntries() const
     return (s[1] ? s[0]*s[0]/s[1] : TMath::Abs(s[0]) );
  }
  
 +////////////////////////////////////////////////////////////////////////////////
-+/// Set highlight (enable/disable) mode for the histogram
-+/// by default highlight mode is disable
++/// Set highlight (enable/disable) mode for the histogram, by default
++/// highlight mode is disable. Invokes directly `THistPainter::SetHighlight()`.
 +
 +void TH1::SetHighlight(Bool_t set)
 +{
@@ -294,7 +309,7 @@ index 85c435ff..ba891b93 100644
     virtual void       SetStack(TList *stack) {fStack = stack;}
     virtual void       SetShowProjection(const char *option,Int_t nbins);
 diff --git a/hist/histpainter/src/TGraphPainter.cxx b/hist/histpainter/src/TGraphPainter.cxx
-index edfe9b51..0464f7e8 100644
+index edfe9b51..adc8c8f1 100644
 --- a/hist/histpainter/src/TGraphPainter.cxx
 +++ b/hist/histpainter/src/TGraphPainter.cxx
 @@ -15,7 +15,7 @@
@@ -323,7 +338,61 @@ index edfe9b51..0464f7e8 100644
  ClassImp(TGraphPainter);
  
  
-@@ -623,12 +628,19 @@ Int_t TGraphPainter::DistancetoPrimitiveHelper(TGraph *theGraph, Int_t px, Int_t
+@@ -55,6 +60,7 @@ ClassImp(TGraphPainter);
+ - [Colors automatically picked in palette](#GP05)
+ - [Reverse graphs' axis](#GP06)
+ - [Graphs in logarithmic scale](#GP07)
++- [Highlight mode for graph](#GP08)
+ 
+ 
+ ### <a name="GP00"></a> Introduction
+@@ -527,6 +533,45 @@ Begin_Macro(source)
+ }
+ 
+ End_Macro
++
++#### <a name="GP08"></a> Highlight mode for graph
++
++\since **ROOT version 6.13/04**
++
++\image html hlGraph1.gif "Highlight mode"
++
++Highlight mode is implemented for `TGraph` (and for `TH1`) class. When
++highlight mode is on, mouse movement over the point will be represented
++graphically. Point will be highlighted as "point circle" (presented by
++marker object). Moreover, any highlight (change of point) emits signal
++`TCanvas::Highlighted()` which allows the user to react and call their own
++function. For a better understanding please see also the tutorials
++`$ROOTSYS/tutorials/graphs/hlGraph*.C` files.
++
++Highlight mode is switched on/off by `TGraph::SetHighlight()` function
++or interactively from `TGraph` context menu. `TGraph::IsHighlight()` to verify
++whether the highlight mode enabled or disabled, default it is disabled.
++
++    root [0] .x $ROOTSYS/tutorials/graphs/gerrors2.C
++    root [1] // try SetHighlight() interactively from TGraph context menu
++
++\image html hlgerrors2.gif "Highlight mode for graph"
++
++See how it is used
++<a href="classTHistPainter.html#HP30a">highlight mode and user function</a>
++(is fully equivalent as for histogram).
++
++NOTE all parameters of user function are taken from
++
++    void TCanvas::Highlighted(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)
++
++-  `pad` is pointer to pad with highlighted graph
++-  `obj` is pointer to highlighted graph
++-  `x` is highlighted x-th (i-th) point for graph
++-  `y` not in use (only for 2D histogram)
++
++For more complex demo please see for example `$ROOTSYS/tutorials/math/hlquantiles.C` file.
++
+ */
+ 
+ 
+@@ -623,12 +668,19 @@ Int_t TGraphPainter::DistancetoPrimitiveHelper(TGraph *theGraph, Int_t px, Int_t
        theY   = theGraph->GetY();
     }
  
@@ -344,7 +413,7 @@ index edfe9b51..0464f7e8 100644
     if (distance < kMaxDiff) return distance;
  
     for (i=0;i<theNpoints-1;i++) {
-@@ -978,6 +990,107 @@ char *TGraphPainter::GetObjectInfoHelper(TGraph * /*theGraph*/, Int_t /*px*/, In
+@@ -978,6 +1030,107 @@ char *TGraphPainter::GetObjectInfoHelper(TGraph * /*theGraph*/, Int_t /*px*/, In
  }
  
  
@@ -452,7 +521,7 @@ index edfe9b51..0464f7e8 100644
  ////////////////////////////////////////////////////////////////////////////////
  /// Paint a any kind of TGraph
  
-@@ -3426,6 +3539,8 @@ void TGraphPainter::PaintGraphSimple(TGraph *theGraph, Option_t *option)
+@@ -3426,6 +3579,8 @@ void TGraphPainter::PaintGraphSimple(TGraph *theGraph, Option_t *option)
        PaintGraph(theGraph, theGraph->GetN(), theGraph->GetX(), theGraph->GetY(), option);
     }
  
@@ -462,7 +531,7 @@ index edfe9b51..0464f7e8 100644
     // the fit function).
     TList *functions = theGraph->GetListOfFunctions();
 diff --git a/hist/histpainter/src/THistPainter.cxx b/hist/histpainter/src/THistPainter.cxx
-index d9bfb982..fbc59a81 100644
+index d9bfb982..0a4a09e1 100644
 --- a/hist/histpainter/src/THistPainter.cxx
 +++ b/hist/histpainter/src/THistPainter.cxx
 @@ -130,6 +130,8 @@
@@ -474,7 +543,7 @@ index d9bfb982..fbc59a81 100644
  
  
  ## <a name="HP00"></a> Introduction
-@@ -2961,6 +2963,93 @@ about 20 color schemes supported ('s' for "scheme"); 'l' or 'L' to
+@@ -2961,6 +2963,97 @@ about 20 color schemes supported ('s' for "scheme"); 'l' or 'L' to
  increase number of polygons ('l' for "level" of details), 'w' or 'W'
  to show outlines ('w' for "wireframe").
  
@@ -482,10 +551,12 @@ index d9bfb982..fbc59a81 100644
 +
 +\since **ROOT version 6.13/04**
 +
-+Highlight mode is implemented for `TH1` (and equivalent for `TGraph`) class.
-+When Highlight mode is on, mouse movement over the bin will be represented
-+graphically. Color of the highlighted bin (presented by box object) will
-+change. Moreover, any highlight (change of bin) emits signal
++\image html hlHisto3_top.gif "Highlight mode"
++
++Highlight mode is implemented for `TH1` (and for `TGraph`) class. When
++highlight mode is on, mouse movement over the bin will be represented
++graphically. Bin will be highlighted as "bin box" (presented by box
++object). Moreover, any highlight (change of bin) emits signal
 +`TCanvas::Highlighted()` which allows the user to react and call their own
 +function. For a better understanding please see also the tutorials
 +`$ROOTSYS/tutorials/hist/hlHisto*.C` files.
@@ -504,14 +575,14 @@ index d9bfb982..fbc59a81 100644
 +#### <a name="HP30a"></a> Highlight mode and user function
 +
 +The user can use (connect) `TCanvas::Highlighted()` signal, which is always
-+emitted if there is a highlight (change) bin and call user function via
-+signal and slot communication mechanism. `TCanvas::Highlighted()`
-+is equivalent `TCanvas::Picked()`
++emitted if there is a highlight bin and call user function via signal
++and slot communication mechanism. `TCanvas::Highlighted()` is similar
++`TCanvas::Picked()`
 +
 +-  when selected object (histogram as a whole) is different from previous
 +then emit `Picked()` signal
-+-  when selected bin from histogram is different from previous then
-+emit `Highlighted()` signal
++-  when selected (highlighted) bin from histogram is different from previous
++then emit `Highlighted()` signal
 +
 +Any user function (or functions) has to be defined
 +`UserFunction(TVirtualPad *pad, TObject *obj, Int_t x, Int_t y)`.
@@ -525,12 +596,14 @@ index d9bfb982..fbc59a81 100644
 +-  `x` is highlighted x bin for 1D histogram
 +-  `y` is highlighted y bin for 2D histogram (for 1D histogram not in use)
 +
-+Example how to create a connection from any `TCanvas` object to a user `UserFunction()` slot
++Example how to create a connection from any `TCanvas` object to a user
++`UserFunction()` slot (see also `TQObject::Connect()` for additional info)
 +
 +    TQObject::Connect("TCanvas", "Highlighted(TVirtualPad*,TObject*,Int_t,Int_t)",
 +                          0, 0, "UserFunction(TVirtualPad*,TObject*,Int_t,Int_t)");
 +
-+or use non-static "simplified" function `TCanvas::HighlightConnect(const char *slot)`
++or use non-static "simplified" function
++`TCanvas::HighlightConnect(const char *slot)`
 +
 +    c1->HighlightConnect("UserFunction(TVirtualPad*,TObject*,Int_t,Int_t)");
 +
@@ -568,7 +641,7 @@ index d9bfb982..fbc59a81 100644
  */
  
  TH1 *gCurrentHist = 0;
-@@ -2973,6 +3062,9 @@ const Int_t kNMAX = 2000;
+@@ -2973,6 +3066,9 @@ const Int_t kNMAX = 2000;
  const Int_t kMAXCONTOUR  = 104;
  const UInt_t kCannotRotate = BIT(11);
  
@@ -578,7 +651,7 @@ index d9bfb982..fbc59a81 100644
  static TString gStringEntries;
  static TString gStringMean;
  static TString gStringMeanX;
-@@ -3021,6 +3113,8 @@ THistPainter::THistPainter()
+@@ -3021,6 +3117,8 @@ THistPainter::THistPainter()
        fCuts[i] = 0;
        fCutsOpt[i] = 0;
     }
@@ -587,7 +660,7 @@ index d9bfb982..fbc59a81 100644
  
     gStringEntries          = gEnv->GetValue("Hist.Stats.Entries",          "Entries");
     gStringMean             = gEnv->GetValue("Hist.Stats.Mean",             "Mean");
-@@ -3152,6 +3246,11 @@ Int_t THistPainter::DistancetoPrimitive(Int_t px, Int_t py)
+@@ -3152,6 +3250,11 @@ Int_t THistPainter::DistancetoPrimitive(Int_t px, Int_t py)
        }
     }
  
@@ -599,7 +672,7 @@ index d9bfb982..fbc59a81 100644
     //     if object is 2D or 3D return this object
     if (fH->GetDimension() == 2) {
        if (fH->InheritsFrom(TH2Poly::Class())) {
-@@ -3642,6 +3741,143 @@ char *THistPainter::GetObjectInfo(Int_t px, Int_t py) const
+@@ -3642,6 +3745,143 @@ char *THistPainter::GetObjectInfo(Int_t px, Int_t py) const
     return info;
  }
  
@@ -743,7 +816,7 @@ index d9bfb982..fbc59a81 100644
  ////////////////////////////////////////////////////////////////////////////////
  /// Return `kTRUE` if the cell `ix`, `iy` is inside one of the graphical cuts.
  
-@@ -9754,6 +9990,9 @@ void THistPainter::PaintTF3()
+@@ -9754,6 +9994,9 @@ void THistPainter::PaintTF3()
  
  void THistPainter::PaintTitle()
  {
