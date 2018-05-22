@@ -1,3 +1,7 @@
+- Since ROOT version 6.15/01 highlight mode for histogram or graph is successfully implemented.
+  - [ROOT #1839](https://github.com/root-project/root/pull/1839) - highlight mode for histogram or graph objects (ROOT GitHub Pull request). Pull request successfully **merged** and closed.
+  - [ROOT-6792](https://sft.its.cern.ch/jira/browse/ROOT-6792) - Highlight mode for histogram or graph objects (ROOT JIRA issue)
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/musinsky/ROOTHighlight/master/tmp/hlHisto3_half.gif">
 </p>
