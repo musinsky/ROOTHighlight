@@ -1,0 +1,167 @@
+diff --git a/hist/hist/inc/TVirtualGraphPainter.h b/hist/hist/inc/TVirtualGraphPainter.h
+index 30db223..0c98c76 100644
+--- a/hist/hist/inc/TVirtualGraphPainter.h
++++ b/hist/hist/inc/TVirtualGraphPainter.h
+@@ -35,6 +35,7 @@ public:
+    TVirtualGraphPainter() { }
+    virtual ~TVirtualGraphPainter() { }
+ 
++   virtual Int_t GetHighlightPointHelper(const TGraph *theGraph) const = 0;
+    virtual Int_t DistancetoPrimitiveHelper(TGraph *theGraph, Int_t px, Int_t py) = 0;
+    virtual void  DrawPanelHelper(TGraph *theGraph) = 0;
+    virtual void  ExecuteEventHelper(TGraph *theGraph, Int_t event, Int_t px, Int_t py) = 0;
+@@ -43,6 +44,7 @@ public:
+    virtual void  PaintGraph(TGraph *theGraph, Int_t npoints, const Double_t *x, const Double_t *y, Option_t *chopt) = 0;
+    virtual void  PaintGrapHist(TGraph *theGraph, Int_t npoints, const Double_t *x, const Double_t *y, Option_t *chopt) = 0;
+    virtual void  PaintStats(TGraph *theGraph, TF1 *fit) = 0;
++   virtual void  SetHighlight(TGraph *theGraph) = 0;
+ 
+    static TVirtualGraphPainter *GetPainter();
+    static void                  SetPainter(TVirtualGraphPainter *painter);
+diff --git a/hist/histpainter/inc/TGraphPainter.h b/hist/histpainter/inc/TGraphPainter.h
+index 86c364b..8cfa3f5 100644
+--- a/hist/histpainter/inc/TGraphPainter.h
++++ b/hist/histpainter/inc/TGraphPainter.h
+@@ -41,6 +41,8 @@ public:
+    virtual void   DrawPanelHelper(TGraph *theGraph);
+    virtual void   ExecuteEventHelper(TGraph *theGraph, Int_t event, Int_t px, Int_t py);
+    virtual char  *GetObjectInfoHelper(TGraph *theGraph, Int_t px, Int_t py) const;
++   virtual Int_t  GetHighlightPointHelper(const TGraph *theGraph) const;
++   virtual void   PaintHighlightPoint(TGraph *theGraph, Option_t *option);
+    void           PaintHelper(TGraph *theGraph, Option_t *option);
+    virtual void   PaintGraph(TGraph *theGraph, Int_t npoints, const Double_t *x, const Double_t *y, Option_t *chopt);
+    virtual void   PaintGrapHist(TGraph *theGraph, Int_t npoints, const Double_t *x, const Double_t *y, Option_t *chopt);
+@@ -52,6 +54,7 @@ public:
+    void           PaintGraphSimple(TGraph *theGraph, Option_t *option);
+    void           PaintPolyLineHatches(TGraph *theGraph, Int_t n, const Double_t *x, const Double_t *y);
+    void           PaintStats(TGraph *theGraph, TF1 *fit);
++   virtual void   SetHighlight(TGraph *theGraph);
+    void           Smooth(TGraph *theGraph, Int_t npoints, Double_t *x, Double_t *y, Int_t drawtype);
+ 
+    ClassDef(TGraphPainter,0)  // TGraph painter
+diff --git a/hist/histpainter/src/TGraphPainter.cxx b/hist/histpainter/src/TGraphPainter.cxx
+index d918099..fb12db1 100644
+--- a/hist/histpainter/src/TGraphPainter.cxx
++++ b/hist/histpainter/src/TGraphPainter.cxx
+@@ -30,10 +30,14 @@
+ #include "TLatex.h"
+ #include "TArrow.h"
+ #include "TFrame.h"
++#include "TMarker.h"
+ #include "TVirtualPadEditor.h"
+ 
+ Double_t *gxwork, *gywork, *gxworkl, *gyworkl;
+ 
++static Int_t   gHighlightPoint = -1;   // highlight point of graph
++static TGraph *gHighlightGraph = 0;    // pointer to graph with highlight point
++
+ ClassImp(TGraphPainter);
+ 
+ 
+@@ -654,11 +658,34 @@ Int_t TGraphPainter::DistancetoPrimitiveHelper(TGraph *theGraph, Int_t px, Int_t
+       theY   = theGraph->GetY();
+    }
+ 
++   Int_t hpoint = -1;
++   const Int_t kHighlightRange = 50; // maybe as fgHighlightRange and Set/Get
++   static Int_t distanceOld = kHighlightRange;
++   if (gHighlightPoint == -1) distanceOld = kHighlightRange; // reset
++
+    for (i=0;i<theNpoints;i++) {
+       pxp = gPad->XtoAbsPixel(gPad->XtoPad(theX[i]));
+       pyp = gPad->YtoAbsPixel(gPad->YtoPad(theY[i]));
+       d   = TMath::Abs(pxp-px) + TMath::Abs(pyp-py);
+-      if (d < distance) distance = d;
++      if (d < distance) {
++         distance = d;
++         hpoint = i;
++      }
++   }
++
++   // check for highlight point, only if highlight is enable
++   // better choice is highlighting in DistancetoPrimitive than in ExecuteEvent
++   if (theGraph->IsHighlight()) {
++      if ((distance < kHighlightRange) && (distance < distanceOld)) { // closest point
++         if ((gHighlightPoint != hpoint) || (gHighlightGraph != theGraph)) { // was changed
++            //Info("DistancetoPrimitiveHelper", "graph: %p\tpoint: %d", (void *)theGraph, hpoint);
++            gHighlightPoint = hpoint;
++            gHighlightGraph = theGraph;
++            gPad->Modified(kTRUE);
++            gPad->Update(); // paint highlight point as marker
++         }
++      }
++      if (gHighlightGraph == theGraph) distanceOld = distance;
+    }
+    if (distance < kMaxDiff) return distance;
+ 
+@@ -1009,6 +1036,61 @@ char *TGraphPainter::GetObjectInfoHelper(TGraph * /*theGraph*/, Int_t /*px*/, In
+ 
+ 
+ //______________________________________________________________________________
++Int_t TGraphPainter::GetHighlightPointHelper(const TGraph *theGraph) const
++{
++   // Return the highlighted point for theGraph
++
++   if (theGraph == gHighlightGraph) return gHighlightPoint;
++   else return -1;
++}
++
++
++//______________________________________________________________________________
++void TGraphPainter::SetHighlight(TGraph *theGraph)
++{
++   // Set highlight (enable/disble) mode for theGraph
++
++   gHighlightPoint = -1; // must be -1
++   gHighlightGraph = 0;
++
++   // delete previous highlight marker
++   TIter next(gROOT->GetListOfCanvases());
++   TVirtualPad *pad = 0;
++   while ((pad = (TVirtualPad *)next()))
++      if (pad && pad->FindObject(theGraph)) pad->Modified(kTRUE);
++}
++
++
++//______________________________________________________________________________
++void TGraphPainter::PaintHighlightPoint(TGraph *theGraph, Option_t * /*option*/)
++{
++   // Paint highlight point as TMarker object (open circle), only if highlight is enable
++
++   static TMarker *hmarker = 0;
++   Double_t hx, hy;
++   if (theGraph->IsHighlight() && (gHighlightGraph == theGraph)) {
++      if (theGraph->GetPoint(gHighlightPoint, hx, hy) == -1) {
++         // special case, e.g. after interactive remove last point
++         if (hmarker) { hmarker->Delete(); hmarker = 0; }
++      } else {
++         if (!hmarker) {
++            hmarker = new TMarker(hx, hy, 24);
++            hmarker->SetBit(kCannotPick);
++         }
++         hmarker->SetX(hx);
++         hmarker->SetY(hy);
++         hmarker->SetMarkerSize(theGraph->GetMarkerSize()*2.0);
++         if (hmarker->GetMarkerSize() < 1.0) hmarker->SetMarkerSize(1.0); // always visible
++         hmarker->SetMarkerColor(theGraph->GetMarkerColor());
++         hmarker->Paint();
++         //Info("PaintHighlightPoint", "graph: %p\tpoint: %d", (void *)gHighlightGraph, gHighlightPoint);
++      }
++   } else if (gHighlightPoint == -1)
++      if (hmarker) { hmarker->Delete(); hmarker = 0; }
++}
++
++
++//______________________________________________________________________________
+ void TGraphPainter::PaintHelper(TGraph *theGraph, Option_t *option)
+ {
+    /* Begin_Html
+@@ -3330,6 +3412,8 @@ void TGraphPainter::PaintGraphSimple(TGraph *theGraph, Option_t *option)
+       PaintGraph(theGraph, theGraph->GetN(), theGraph->GetX(), theGraph->GetY(), option);
+    }
+ 
++   PaintHighlightPoint(theGraph, option);
++
+    // Paint associated objects in the list of functions (for instance
+    // the fit function).
+    TList *functions = theGraph->GetListOfFunctions();
